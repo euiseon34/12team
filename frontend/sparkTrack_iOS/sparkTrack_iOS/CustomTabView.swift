@@ -29,7 +29,7 @@ struct CustomTabView: View {
         Button(action: {selectedTab = .evaluation}){
           ButtonView(
             icon: Image(systemName: "pencil"),
-            title: "하루 평가",
+            title: "평가",
             isSelected: selectedTab == .evaluation
           )
         }
@@ -65,7 +65,7 @@ struct CustomTabView: View {
         Button(action: {selectedTab = .user}){
           ButtonView(
             icon: Image(systemName: "person"),
-            title: "마이페이지",
+            title: "마이",
             isSelected: selectedTab == .user
           )
         }
