@@ -9,10 +9,15 @@ import SwiftUI
 
 struct ProgressTrackView: View {
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+      Circle()
+        .fill(Color.clear)
+        .frame(width: 250, height: 250)
+        .overlay(
+          Circle().stroke(Color.black, lineWidth: 15)
+        )
     }
 }
 
 #Preview {
-    ProgressTrackView()
+  ProgressTrackView()
 }
