@@ -9,7 +9,7 @@ import SwiftUI
 
 struct CountdownView: View {
   @State var counter: Int = 0
-  var countTo: Int = 120
+  var countTo: Int = 30
   
   var body: some View {
     VStack{
