@@ -33,5 +33,5 @@ struct ClockView: View {
 }
 
 #Preview {
-  ClockView(counter: 50, countTo: 30)
+  ClockView(counter: 30, countTo: 50)
 }
