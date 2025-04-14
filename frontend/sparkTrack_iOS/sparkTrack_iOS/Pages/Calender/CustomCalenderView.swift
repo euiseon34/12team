@@ -7,109 +7,121 @@
 
 import SwiftUI
 
-struct CustomCalendarView: View {
-    @State private var currentDate = Date()
-    @State private var selectedDate: Date? = nil
-    
-    private let calendar = Calendar.current
-    private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy MM dd"
-        return formatter
-    }()
+struct CalendarEvent: Identifiable {
+    let id = UUID()
+    let date: Date
+    let title: String
+}
 
-    var body: some View {
-        VStack(spacing: 16) {
-            // 월/년 표시
-            HStack {
-                Button(action: { changeMonth(by: -1) }) {
-                    Image(systemName: "chevron.left")
-                }
-                Spacer()
-                Text(monthYearString(for: currentDate))
-                    .font(.headline)
-                Spacer()
-                Button(action: { changeMonth(by: 1) }) {
-                    Image(systemName: "chevron.right")
-                }
-            }
-            .padding(.horizontal)
-
-            // 요일 헤더
-            let days = ["일", "월", "화", "수", "목", "금", "토"]
-            HStack {
-                ForEach(days, id: \.self) { day in
-                    Text(day)
-                        .font(.subheadline)
-                        .frame(maxWidth: .infinity)
-                }
-            }
-
-            // 날짜 그리드
-            let daysInMonth = generateDaysInMonth()
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7)) {
-                ForEach(daysInMonth, id: \.self) { date in
-                    Button(action: {
-                        selectedDate = date
-                    }) {
-                        Text("\(calendar.component(.day, from: date))")
-                            .frame(maxWidth: .infinity, minHeight: 40)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(selectedDate == date ? Color.blue.opacity(0.3) : Color.clear)
-                            )
-                    }
-                    .disabled(!calendar.isDate(date, equalTo: currentDate, toGranularity: .month))
-                }
-            }
-
-            // 선택된 날짜 표시
-            if let selected = selectedDate {
-                Text("선택한 날짜: \(dateFormatter.string(from: selected))")
-                    .padding()
-            }
-        }
-        .padding()
+struct CustomCalenderView: View {
+  @State private var currentDate = Date()
+  @State private var selectedDate: Date? = nil
+  @State private var showEventForm = false
+  @State private var events: [CalendarEvent] = []
+  
+  private var daysInMonth: [Date] {
+    guard let range = Calendar.current.range(of: .day, in: .month, for: currentDate) else { return [] }
+    return range.compactMap { day in
+      Calendar.current.date(bySetting: .day, value: day, of: currentDate)
     }
-
-    // 월 변경 함수
-    private func changeMonth(by value: Int) {
-        if let newDate = calendar.date(byAdding: .month, value: value, to: currentDate) {
-            currentDate = newDate
-            selectedDate = nil
+  }
+  
+  /// ✅ 선택된 날짜에 해당하는 이벤트들
+  private var eventsForSelectedDate: [CalendarEvent] {
+    guard let selectedDate else { return [] }
+    return events.filter { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }
+  }
+  
+  var body: some View {
+    VStack(spacing: 12) {
+      HStack {
+        Button(action: {
+          currentDate = Calendar.current.date(byAdding: .month, value: -1, to: currentDate) ?? currentDate
+        }) {
+          Image(systemName: "chevron.left")
         }
-    }
-
-    // 월/년 문자열 생성
-    private func monthYearString(for date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy년 M월"
-        return formatter.string(from: date)
-    }
-
-    // 날짜 배열 생성
-    private func generateDaysInMonth() -> [Date] {
-        guard let monthInterval = calendar.dateInterval(of: .month, for: currentDate),
-              let firstWeekday = calendar.dateComponents([.weekday], from: monthInterval.start).weekday else {
-            return []
+        
+        Spacer()
+        
+        Text(monthYearString(from: currentDate))
+          .font(.title2)
+        
+        Spacer()
+        
+        Button(action: {
+          currentDate = Calendar.current.date(byAdding: .month, value: 1, to: currentDate) ?? currentDate
+        }) {
+          Image(systemName: "chevron.right")
         }
-
-        var days: [Date] = []
-        let paddingDays = firstWeekday - calendar.firstWeekday
-        for i in 0..<(paddingDays < 0 ? 7 + paddingDays : paddingDays) {
-            days.append(calendar.date(byAdding: .day, value: -i - 1, to: monthInterval.start)!)
-        }
-        days.reverse()
-
-        for offset in 0..<calendar.dateComponents([.day], from: monthInterval.start, to: monthInterval.end).day! {
-            if let date = calendar.date(byAdding: .day, value: offset, to: monthInterval.start) {
-                days.append(date)
+      }
+      .padding(.horizontal)
+      
+      LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7)) {
+        ForEach(daysInMonth, id: \.self) { date in
+          Button(action: {
+            selectedDate = date
+          }) {
+            ZStack(alignment: .topTrailing) {
+              Text("\(Calendar.current.component(.day, from: date))")
+                .padding(8)
+                .frame(maxWidth: .infinity)
+                .background(Calendar.current.isDate(date, inSameDayAs: selectedDate ?? Date()) ? Color.blue.opacity(0.2) : Color.clear)
+                .clipShape(Circle())
+              
+              if events.contains(where: { Calendar.current.isDate($0.date, inSameDayAs: date) }) {
+                Circle()
+                  .fill(Color.red)
+                  .frame(width: 6, height: 6)
+                  .offset(x: 6, y: 2)
+              }
             }
+          }
+          .buttonStyle(PlainButtonStyle())
         }
-        return days
+      }
+      .padding(.horizontal)
+      
+      Divider()
+      
+      if let selectedDate {
+        HStack {
+          Text(selectedDate.formatted(date: .abbreviated, time: .omitted))
+            .font(.headline)
+          Spacer()
+          Button("일정 추가") {
+            showEventForm = true
+          }
+        }
+        .padding(.horizontal)
+        
+        if eventsForSelectedDate.isEmpty {
+          Text("등록된 일정이 없습니다.")
+            .foregroundColor(.gray)
+            .padding()
+        } else {
+          List(eventsForSelectedDate) { event in
+            Text("• \(event.title)")
+          }
+          .frame(height: 150)
+        }
+      }
     }
+    .sheet(isPresented: $showEventForm) {
+      if let selectedDate {
+        EventFormView(date: selectedDate) { title in
+          events.append(CalendarEvent(date: selectedDate, title: title))
+        }
+      }
+    }
+  }
+  
+  func monthYearString(from date: Date) -> String {
+    let formatter = DateFormatter()
+    formatter.dateFormat = "MMMM yyyy"
+    return formatter.string(from: date)
+  }
 }
 
 #Preview {
-    CustomCalendarView()
+    CustomCalenderView()
 }

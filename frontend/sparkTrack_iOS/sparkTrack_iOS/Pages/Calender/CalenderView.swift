@@ -9,8 +9,11 @@ import SwiftUI
 
 struct CalendarView: View {
     var body: some View {
-      VStack {
-        CustomCalendarView()
+      VStack() {
+        CustomCalenderView()
+          .padding(.top, 80)
+        
+        Spacer()
       }
     }
 }
