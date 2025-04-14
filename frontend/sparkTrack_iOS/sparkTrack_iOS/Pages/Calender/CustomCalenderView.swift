@@ -19,21 +19,28 @@ struct CustomCalenderView: View {
   @State private var showEventForm = false
   @State private var events: [CalendarEvent] = []
   
-  private var daysInMonth: [Date] {
-    guard let range = Calendar.current.range(of: .day, in: .month, for: currentDate) else { return [] }
-    return range.compactMap { day in
-      Calendar.current.date(bySetting: .day, value: day, of: currentDate)
-    }
-  }
+  private let daySymbols = Calendar.current.shortWeekdaySymbols // ["일", "월", "화", ...]
   
-  /// ✅ 선택된 날짜에 해당하는 이벤트들
-  private var eventsForSelectedDate: [CalendarEvent] {
-    guard let selectedDate else { return [] }
-    return events.filter { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }
+  private var daysInMonth: [Date?] {
+    guard let range = Calendar.current.range(of: .day, in: .month, for: currentDate),
+          let firstDayOfMonth = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month], from: currentDate)) else {
+      return []
+    }
+    
+    let weekday = Calendar.current.component(.weekday, from: firstDayOfMonth) // 1 ~ 7
+    
+    var dates: [Date?] = Array(repeating: nil, count: weekday - 1) // 앞에 빈칸 추가
+    for day in range {
+      if let date = Calendar.current.date(bySetting: .day, value: day, of: currentDate) {
+        dates.append(date)
+      }
+    }
+    return dates
   }
   
   var body: some View {
-    VStack(spacing: 12) {
+    VStack {
+      // 월 이동 컨트롤
       HStack {
         Button(action: {
           currentDate = Calendar.current.date(byAdding: .month, value: -1, to: currentDate) ?? currentDate
@@ -56,61 +63,50 @@ struct CustomCalenderView: View {
       }
       .padding(.horizontal)
       
+      // 요일 헤더
       LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7)) {
-        ForEach(daysInMonth, id: \.self) { date in
-          Button(action: {
-            selectedDate = date
-          }) {
-            ZStack(alignment: .topTrailing) {
-              Text("\(Calendar.current.component(.day, from: date))")
-                .padding(8)
-                .frame(maxWidth: .infinity)
-                .background(Calendar.current.isDate(date, inSameDayAs: selectedDate ?? Date()) ? Color.blue.opacity(0.2) : Color.clear)
-                .clipShape(Circle())
-              
-              if events.contains(where: { Calendar.current.isDate($0.date, inSameDayAs: date) }) {
-                Circle()
-                  .fill(Color.red)
-                  .frame(width: 6, height: 6)
-                  .offset(x: 6, y: 2)
-              }
-            }
-          }
-          .buttonStyle(PlainButtonStyle())
+        ForEach(daySymbols, id: \.self) { day in
+          Text(day)
+            .font(.subheadline)
+            .fontWeight(.semibold)
+            .frame(maxWidth: .infinity)
         }
       }
       .padding(.horizontal)
       
-      Divider()
-      
-      if let selectedDate {
-        HStack {
-          Text(selectedDate.formatted(date: .abbreviated, time: .omitted))
-            .font(.headline)
-          Spacer()
-          Button("일정 추가") {
-            showEventForm = true
-          }
-        }
-        .padding(.horizontal)
-        
-        if eventsForSelectedDate.isEmpty {
-          Text("등록된 일정이 없습니다.")
-            .foregroundColor(.gray)
-            .padding()
-        } else {
-          List {
-            ForEach(eventsForSelectedDate) { event in
-              Text("• \(event.title)")
+      // 날짜 렌더링
+      LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7)) {
+        ForEach(daysInMonth.indices, id: \.self) { index in
+          if let date = daysInMonth[index] {
+            Button(action: {
+              selectedDate = date
+              showEventForm = true
+            }) {
+              ZStack(alignment: .topTrailing) {
+                Text("\(Calendar.current.component(.day, from: date))")
+                  .padding(8)
+                  .frame(maxWidth: .infinity)
+                  .background(Calendar.current.isDate(date, inSameDayAs: selectedDate ?? Date()) ? Color.blue.opacity(0.2) : Color.clear)
+                  .clipShape(Circle())
+                
+                if events.contains(where: { Calendar.current.isDate($0.date, inSameDayAs: date) }) {
+                  Circle()
+                    .fill(Color.red)
+                    .frame(width: 6, height: 6)
+                    .offset(x: 6, y: 2)
+                }
+              }
             }
-            .onDelete(perform: deleteEvent)
+            .buttonStyle(PlainButtonStyle())
+          } else {
+            Color.clear.frame(height: 44)
           }
-          .frame(height: 150)
         }
       }
+      .padding(.horizontal)
     }
     .sheet(isPresented: $showEventForm) {
-      if let selectedDate {
+      if let selectedDate = selectedDate {
         EventFormView(date: selectedDate) { title in
           events.append(CalendarEvent(date: selectedDate, title: title))
         }
@@ -118,21 +114,10 @@ struct CustomCalenderView: View {
     }
   }
   
-  private func deleteEvent(at offsets: IndexSet) {
-    let eventsForDate = eventsForSelectedDate
-    for index in offsets {
-      if let eventIndex = events.firstIndex(where: {
-        $0.id == eventsForDate[index].id
-      }) {
-        events.remove(at: eventIndex)
-      }
-    }
-  }
-  
-  
   func monthYearString(from date: Date) -> String {
     let formatter = DateFormatter()
-    formatter.dateFormat = "MMMM yyyy"
+    formatter.locale = Locale(identifier: "ko_KR")
+    formatter.dateFormat = "yyyy년 M월"
     return formatter.string(from: date)
   }
 }
