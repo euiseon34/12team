@@ -99,8 +99,11 @@ struct CustomCalenderView: View {
             .foregroundColor(.gray)
             .padding()
         } else {
-          List(eventsForSelectedDate) { event in
-            Text("• \(event.title)")
+          List {
+            ForEach(eventsForSelectedDate) { event in
+              Text("• \(event.title)")
+            }
+            .onDelete(perform: deleteEvent)
           }
           .frame(height: 150)
         }
@@ -114,6 +117,18 @@ struct CustomCalenderView: View {
       }
     }
   }
+  
+  private func deleteEvent(at offsets: IndexSet) {
+    let eventsForDate = eventsForSelectedDate
+    for index in offsets {
+      if let eventIndex = events.firstIndex(where: {
+        $0.id == eventsForDate[index].id
+      }) {
+        events.remove(at: eventIndex)
+      }
+    }
+  }
+  
   
   func monthYearString(from date: Date) -> String {
     let formatter = DateFormatter()
