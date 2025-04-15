@@ -18,12 +18,13 @@ struct HomeView: View {
           QuadrantTask(title: "이메일 확인", isImportant: false, isUrgent: true),
           QuadrantTask(title: "운동하기", isImportant: false, isUrgent: false)
         ])
+        .padding(.top, 60)
         
         Rectangle()
           .frame(width: 380, height: 500)
           .foregroundStyle(.gray)
           .opacity(0.2)
-          .padding(.top, 30)
+          .padding(.top, 10)
         // 투두 뷰 들어갈 예정
         
       }
