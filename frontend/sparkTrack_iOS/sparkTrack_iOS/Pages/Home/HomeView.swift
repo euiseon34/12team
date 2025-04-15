@@ -12,12 +12,12 @@ struct HomeView: View {
     
     ScrollView() {
       VStack {
-        Rectangle()
-          .frame(width: 380, height: 380)
-          .foregroundStyle(.gray)
-          .opacity(0.5)
-          .padding(.top, 80)
-        // 사분면 뷰 들어갈 예정
+        QuadrantView(tasks: [
+          QuadrantTask(title: "과제 제출", isImportant: true, isUrgent: true),
+          QuadrantTask(title: "회의 준비", isImportant: true, isUrgent: false),
+          QuadrantTask(title: "이메일 확인", isImportant: false, isUrgent: true),
+          QuadrantTask(title: "운동하기", isImportant: false, isUrgent: false)
+        ])
         
         Rectangle()
           .frame(width: 380, height: 500)
