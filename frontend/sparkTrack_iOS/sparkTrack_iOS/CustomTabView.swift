@@ -24,7 +24,7 @@ struct CustomTabView: View {
         .frame(height: 4)
       
       Spacer()
-      HStack{
+      HStack {
         Spacer()
         Button(action: {selectedTab = .evaluation}){
           ButtonView(
