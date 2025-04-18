@@ -8,13 +8,11 @@
 import SwiftUI
 
 struct CalendarView: View {
-  @State var dummyEvents: [CalendarEvent] = [
-    CalendarEvent(date: Date(), title: "예시 일정", urgency: 3, preference: 4)
-  ]
+  @ObservedObject var eventStore: EventStore
   
     var body: some View {
       VStack() {
-        CustomCalenderView(events: $dummyEvents)
+        CustomCalenderView(events: $eventStore.events)
           .padding(.top, 80)
         
         Spacer()
@@ -23,5 +21,5 @@ struct CalendarView: View {
 }
 
 #Preview {
-    CalendarView()
+  CalendarView(eventStore: EventStore())
 }

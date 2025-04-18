@@ -153,15 +153,17 @@ struct CustomCalenderView: View {
     }
     .sheet(isPresented: $showEventForm) {
       if let selectedDate {
-        EventFormView(selectedDate: Binding(
-          get: { selectedDate },
-          set: { self.selectedDate = $0 }
-        )) { title, category, start, end, urgency, preference in
+        EventFormView(
+          selectedDate: Binding(
+            get: { selectedDate },
+            set: { self.selectedDate = $0 }
+          )
+        ) { title, category, start, end, importance, preference in
           events.append(CalendarEvent(
             date: selectedDate,
             title: title,
-            urgency: urgency,
-            preference: preference
+            urgency: importance,
+            preference: preference 
           ))
         }
       }

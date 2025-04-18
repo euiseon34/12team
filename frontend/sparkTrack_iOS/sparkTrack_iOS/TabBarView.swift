@@ -17,6 +17,7 @@ enum Tab {
 
 struct TabBarView: View {
   @State var selectedTab: Tab = .home
+  @StateObject var eventStore = EventStore()
   
   var body: some View {
     GeometryReader { geometry in
@@ -27,10 +28,10 @@ struct TabBarView: View {
             DayEvaluationView()
               .ignoresSafeArea()
           case .calender:
-            CalendarView()
+            CalendarView(eventStore: eventStore)
               .ignoresSafeArea()
           case .home:
-            HomeView()
+            HomeView(eventStore: eventStore)
               .ignoresSafeArea()
           case .summary:
             SummaryView()
