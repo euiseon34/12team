@@ -35,11 +35,11 @@ struct CustomTabView: View {
         }
         
         Spacer()
-        Button(action: {selectedTab = .calender}){
+        Button(action: {selectedTab = .calendar}){
           ButtonView(
             icon: Image(systemName: "calendar"),
             title: "캘린더",
-            isSelected: selectedTab == .calender
+            isSelected: selectedTab == .calendar
           )
         }
         

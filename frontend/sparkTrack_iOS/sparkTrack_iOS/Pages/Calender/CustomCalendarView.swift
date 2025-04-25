@@ -19,7 +19,7 @@ struct CalendarEvent: Identifiable {
 
 import SwiftUI
 
-struct CustomCalenderView: View {
+struct CustomCalendarView: View {
   @Binding var events: [CalendarEvent]
   
   @State private var currentDate = Date()
@@ -184,5 +184,5 @@ struct CustomCalenderView: View {
     CalendarEvent(date: Date(), title: "예시 일정", urgency: 3, preference: 4)
   ]
   
-  return CustomCalenderView(events: $dummyEvents)
+  return CustomCalendarView(events: $dummyEvents)
 }

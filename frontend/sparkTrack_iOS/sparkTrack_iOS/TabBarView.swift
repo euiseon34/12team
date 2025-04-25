@@ -9,7 +9,7 @@ import SwiftUI
 
 enum Tab {
   case evaluation
-  case calender
+  case calendar
   case home
   case summary
   case user
@@ -27,7 +27,7 @@ struct TabBarView: View {
           case .evaluation:
             DayEvaluationView()
               .ignoresSafeArea()
-          case .calender:
+          case .calendar:
             CalendarView(eventStore: eventStore)
               .ignoresSafeArea()
           case .home:
