@@ -117,38 +117,40 @@ struct CustomCalendarView: View {
       
       if let selectedDate {
         Divider()
-        VStack(alignment: .leading) {
-          Text("📅 \(selectedDate.formatted(date: .abbreviated, time: .omitted)) 일정")
-            .font(.headline)
-            .padding(.bottom, 4)
-          
-          if eventsForSelectedDate.isEmpty {
-            Text("등록된 일정이 없습니다.")
-              .foregroundStyle(.gray)
+        ScrollView() {
+          VStack(alignment: .leading) {
+            Text("📅 \(selectedDate.formatted(date: .abbreviated, time: .omitted)) 일정")
+              .font(.headline)
               .padding(.bottom, 4)
-          } else {
-            ForEach(eventsForSelectedDate) { event in
-              HStack {
-                Text("• \(event.title)")
-                Spacer()
-                Button(role: .destructive) {
-                  events.removeAll { $0.id == event.id }
-                } label: {
-                  Image(systemName: "trash")
+            
+            if eventsForSelectedDate.isEmpty {
+              Text("등록된 일정이 없습니다.")
+                .foregroundStyle(.gray)
+                .padding(.bottom, 4)
+            } else {
+              ForEach(eventsForSelectedDate) { event in
+                HStack {
+                  Text("• \(event.title)")
+                  Spacer()
+                  Button(role: .destructive) {
+                    events.removeAll { $0.id == event.id }
+                  } label: {
+                    Image(systemName: "trash")
+                  }
                 }
+                .padding(.vertical, 2)
               }
-              .padding(.vertical, 2)
             }
+            
+            Button {
+              showEventForm = true
+            } label: {
+              Label("일정 추가", systemImage: "plus.circle")
+            }
+            .padding(.top, 8)
           }
-          
-          Button {
-            showEventForm = true
-          } label: {
-            Label("일정 추가", systemImage: "plus.circle")
-          }
-          .padding(.top, 8)
+          .padding()
         }
-        .padding()
       }
     }
     .sheet(isPresented: $showEventForm) {
