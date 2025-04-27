@@ -6,12 +6,10 @@
 //
 
 import Foundation
-import SwiftUI
 
 class EventStore: ObservableObject {
-  @Published var events: [CalendarEvent] = []
+    @Published var events: [CalendarEvent] = []
 }
-
 //#Preview {
 //    EventStore()
 //}
