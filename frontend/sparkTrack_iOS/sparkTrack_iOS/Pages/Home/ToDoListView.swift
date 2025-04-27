@@ -8,13 +8,10 @@
 import SwiftUI
 
 struct ToDoListView: View {
-  @ObservedObject var eventStore: EventStore
-  @State private var completedEventIDs: Set<UUID> = []
+  @State private var events: [CalendarEvent]
   
-  private var sortedEvents: [CalendarEvent] {
-    eventStore.events.sorted {
-      ($0.startTime ?? $0.date) < ($1.startTime ?? $1.date)
-    }
+  init(events: [CalendarEvent]) {
+    _events = State(initialValue: events)
   }
   
   var body: some View {
@@ -24,65 +21,70 @@ struct ToDoListView: View {
         .bold()
         .padding(.leading)
       
-      if sortedEvents.isEmpty {
+      if events.isEmpty {
         Text("할 일이 없습니다.")
           .foregroundColor(.gray)
           .padding()
       } else {
-        ForEach(sortedEvents) { event in
-          VStack(alignment: .leading, spacing: 6) {
-            HStack {
-              
-              Button(action: {
-                toggleCompletion(for: event)
-              }) {
-                Image(systemName: completedEventIDs.contains(event.id) ? "checkmark.circle.fill" : "circle")
-                  .foregroundColor(completedEventIDs.contains(event.id) ? .green : .gray)
-              }
-              
-              Text(event.title)
-                .font(.body)
-                .fontWeight(.semibold)
-              
-              Spacer()
-              
-              HStack(spacing: 8) {
-                Button(action: {
-                  delete(event: event)
-                }) {
-                  Image(systemName: "trash")
-                    .foregroundColor(.red)
-                }
-              }
-            }
-            
-            if let start = event.startTime, let end = event.endTime {
-              Text("\(formatTime(start)) - \(formatTime(end))")
-                .font(.caption)
-                .foregroundColor(.gray)
-            }
-          }
-          .padding()
-          .background(Color(.secondarySystemBackground))
-          .cornerRadius(10)
-          .shadow(color: .gray.opacity(0.2), radius: 2, x: 0, y: 2)
-          .padding(.horizontal)
+        ForEach($events) { $event in
+          ToDoRowView(event: $event, onDelete: {
+            delete(event: event)
+          })
         }
       }
     }
     .padding(.top, 20)
   }
   
-  private func toggleCompletion(for event: CalendarEvent) {
-    if completedEventIDs.contains(event.id) {
-      completedEventIDs.remove(event.id)
-    } else {
-      completedEventIDs.insert(event.id)
-    }
-  }
-  
   private func delete(event: CalendarEvent) {
-    eventStore.events.removeAll { $0.id == event.id }
+    events.removeAll { $0.id == event.id }
+  }
+}
+
+struct ToDoRowView: View {
+  @Binding var event: CalendarEvent
+  @State private var isCompleted: Bool = false
+  var onDelete: () -> Void
+  
+  var body: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      HStack {
+        Button(action: {
+          isCompleted.toggle()
+        }) {
+          Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
+            .foregroundColor(isCompleted ? .green : .gray)
+        }
+        
+        VStack(alignment: .leading, spacing: 4) {
+          Text(event.title)
+            .font(.body)
+            .fontWeight(.semibold)
+            .strikethrough(isCompleted, color: .gray)
+            .foregroundColor(isCompleted ? .gray : .primary)
+          
+          if let start = event.startTime, let end = event.endTime {
+            Text("\(formatTime(start)) - \(formatTime(end))")
+              .font(.caption)
+              .foregroundColor(.gray)
+          }
+        }
+        
+        Spacer()
+        
+        // 삭제 버튼
+        Button(role: .destructive) {
+          onDelete()
+        } label: {
+          Image(systemName: "trash")
+        }
+      }
+      .padding()
+      .background(Color(.systemBackground))
+      .cornerRadius(12)
+      .shadow(color: .gray.opacity(0.2), radius: 2, x: 0, y: 2)
+    }
+    .padding(.horizontal)
   }
   
   private func formatTime(_ date: Date) -> String {
@@ -93,5 +95,14 @@ struct ToDoListView: View {
 }
 
 #Preview {
-  ToDoListView(eventStore: EventStore())
+  ToDoListView(events: [
+    CalendarEvent(
+      date: Date(),
+      title: "스터디 준비",
+      urgency: 4,
+      preference: 5,
+      startTime: Date(),
+      endTime: Calendar.current.date(byAdding: .hour, value: 1, to: Date())
+    )
+  ])
 }
