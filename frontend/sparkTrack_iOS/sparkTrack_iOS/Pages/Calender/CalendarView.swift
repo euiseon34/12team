@@ -12,7 +12,7 @@ struct CalendarView: View {
   
     var body: some View {
       VStack() {
-        CustomCalendarView(events: $eventStore.events)
+        CustomCalendarView(eventStore: eventStore)
           .padding(.top, 80)
         
         Spacer()
