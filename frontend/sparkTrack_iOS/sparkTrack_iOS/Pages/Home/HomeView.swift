@@ -22,7 +22,7 @@ struct HomeView: View {
         urgencyPreferenceMatrix
         todoListSection
       }
-      .padding(.top, 20)
+      .padding(.top, 30)
     }
   }
 
@@ -37,7 +37,7 @@ struct HomeView: View {
       Spacer()
 
       Text(formattedDate(selectedDate))
-        .font(.headline)
+        .font(.title2)
 
       Spacer()
 
