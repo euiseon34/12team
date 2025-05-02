@@ -69,9 +69,34 @@ struct EventFormView: View {
       .toolbar {
         ToolbarItem(placement: .confirmationAction) {
           Button("저장") {
-            let start = hasTime ? startTime : nil
-            let end = hasTime ? endTime : nil
-            onSave(title, description, selectedCategory, start, end, importance, preference)
+            let formatter = ISO8601DateFormatter()
+            let startString = hasTime ? formatter.string(from: startTime) : ""
+            let endString = hasTime ? formatter.string(from: endTime) : ""
+            
+            let event = EventRequest(
+              title: title,
+              description: description,
+              categories: "",
+              urgency: importance,
+              preference: preference,
+              startTime: startString,
+              endTime: endString,
+              repeatEvent: false
+            )
+            
+            APIService.shared.createEvent(event: event) { result in
+              DispatchQueue.main.async {
+                switch result {
+                case .success(let response):
+                  print("✅ 서버 응답: \(response)")
+                case .failure(let error):
+                  print("❌ 오류 발생: \(error.localizedDescription)")
+                }
+              }
+            }
+            
+            onSave(title, description, selectedCategory, hasTime ? startTime : nil, hasTime ? endTime : nil, importance, preference)
+
             dismiss()
           }
           .disabled(title.isEmpty)
