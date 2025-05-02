@@ -10,10 +10,13 @@ import Foundation
 // 서버에 보낼 데이터 모델 (Swift에서 JSON으로 변환됨)
 struct EventRequest: Codable {
   let title: String
+  let description: String
+  let categories: String
   let urgency: Int
   let preference: Int
   let startTime: String
   let endTime: String
+  let repeatEvent: Bool
 }
 
 class APIService {

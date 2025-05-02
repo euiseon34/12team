@@ -47,7 +47,7 @@ struct CustomCalendarView: View {
     }
     .sheet(isPresented: $showEventForm) {
       if let selectedDate {
-        EventFormView(selectedDate: .constant(selectedDate)) { title, category, start, end, urgency, preference in
+        EventFormView(selectedDate: .constant(selectedDate)) { title, description, category, start, end, urgency, preference in
           eventStore.events.append(CalendarEvent(
             date: selectedDate,
             title: title,
