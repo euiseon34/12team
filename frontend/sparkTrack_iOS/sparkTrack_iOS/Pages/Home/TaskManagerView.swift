@@ -22,7 +22,7 @@ struct TaskManagerView: View {
       UrgencyPreferenceMatrixView(tasks: tasks)
     }
     .sheet(isPresented: $showEventForm) {
-      EventFormView(selectedDate: $selectedDate) { title, category, start, end, importance, preference in
+      EventFormView(selectedDate: $selectedDate) { title, description, category, start, end, importance, preference  in
         let newTask = Task(title: title, urgency: importance, preference: preference)
         tasks.append(newTask)
       }
