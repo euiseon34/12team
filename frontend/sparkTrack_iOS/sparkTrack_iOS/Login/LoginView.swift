@@ -10,7 +10,7 @@ import SwiftUI
 struct LoginView: View {
   @State private var username = ""
   @State private var password = ""
-  @State private var isLoggedIn = false
+  @State private var navigateToMain = false
   
   var body: some View {
     VStack(spacing: 20) {
@@ -20,21 +20,27 @@ struct LoginView: View {
       
       TextField("아이디", text: $username)
         .textFieldStyle(.roundedBorder)
+        .autocapitalization(.none)
       
       SecureField("비밀번호", text: $password)
         .textFieldStyle(.roundedBorder)
       
       Button("로그인") {
-        // 서버 연동 후 성공 시 isLoggedIn = true
-        isLoggedIn = true
+        handleLogin()
       }
       .padding()
-      .buttonStyle(.borderedProminent)
       
-      NavigationLink("", destination: TabBarView(), isActive: $isLoggedIn)
-        .hidden()
+      NavigationLink(destination: TabBarView(), isActive: $navigateToMain) {
+        EmptyView()
+      }
     }
     .padding()
+  }
+  
+  private func handleLogin() {
+    print("로그인 시도: \(username)")
+    // 로그인 성공 시 메인 탭 화면으로
+    navigateToMain = true
   }
 }
 
