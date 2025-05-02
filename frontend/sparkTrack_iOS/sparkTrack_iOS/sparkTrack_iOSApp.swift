@@ -9,9 +9,11 @@ import SwiftUI
 
 @main
 struct sparkTrack_iOSApp: App {
-    var body: some Scene {
-        WindowGroup {
-            ContentView()
-        }
+  var body: some Scene {
+    WindowGroup {
+      NavigationStack {
+        SignUpView()
+      }
     }
+  }
 }
