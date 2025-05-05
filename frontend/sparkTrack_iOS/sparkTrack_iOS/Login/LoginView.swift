@@ -104,9 +104,9 @@ struct LoginView: View {
         TabBarView() // 필요 시 token: token 전달
       }
     }
-<<<<<<< Updated upstream
+
   }
-=======
+
     .padding()
   }
   
@@ -122,7 +122,6 @@ struct LoginView: View {
         }
       }
     }
->>>>>>> Stashed changes
 }
 
 
