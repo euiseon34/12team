@@ -104,7 +104,25 @@ struct LoginView: View {
         TabBarView() // 필요 시 token: token 전달
       }
     }
+<<<<<<< Updated upstream
   }
+=======
+    .padding()
+  }
+  
+    private func handleLogin() {
+      AuthService.shared.login(email: username, password: password) { token in
+        DispatchQueue.main.async {
+          if token != nil {
+            print("✅ 로그인 성공")
+            self.navigateToMain = true
+          } else {
+            print("❌ 로그인 실패")
+          }
+        }
+      }
+    }
+>>>>>>> Stashed changes
 }
 
 
