@@ -37,18 +37,18 @@ struct LoginView: View {
     .padding()
   }
   
-    private func handleLogin() {
-      AuthService.shared.login(email: username, password: password) { token in
-        DispatchQueue.main.async {
-          if token != nil {
-            print("✅ 로그인 성공")
-            self.navigateToMain = true
-          } else {
-            print("❌ 로그인 실패")
-          }
+  private func handleLogin() {
+    AuthService.shared.login(email: username, password: password) { token in
+      DispatchQueue.main.async {
+        if token != nil {
+          print("✅ 로그인 성공")
+          self.navigateToMain = true
+        } else {
+          print("❌ 로그인 실패")
         }
       }
     }
+  }
 }
 
 
