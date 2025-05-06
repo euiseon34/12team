@@ -77,7 +77,7 @@ class APIService {
     // ✅ 회원가입 API
         func signup(request: SignupRequest, completion: @escaping (Result<String, Error>) -> Void) {
             guard let url = URL(string: "\(baseURL)/signup") else {
-                completion(.failure(NSError(domain: "Invalid frontendㅅㅁ나URL", code: -1)))
+                completion(.failure(NSError(domain: "Invalid frontendURL", code: -1)))
                 return
             }
 
