@@ -52,8 +52,9 @@ struct LoginView: View {
   private func handleLogin() {
     AuthService.shared.login(email: username, password: password) { token in
       DispatchQueue.main.async {
-        if token != nil {
+        if let token = token {
           print("✅ 로그인 성공")
+          SessionManager.shared.saveAuthToken(token)  // 저장
           self.navigateToMain = true
         } else {
           print("❌ 로그인 실패")

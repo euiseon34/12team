@@ -9,11 +9,13 @@ import SwiftUI
 
 @main
 struct sparkTrack_iOSApp: App {
-  var body: some Scene {
-    WindowGroup {
-      NavigationStack {
-        LoginView()
-      }
+    var body: some Scene {
+        WindowGroup {
+            if SessionManager.shared.isLoggedIn {
+                TabBarView()
+            } else {
+                LoginView()
+            }
+        }
     }
-  }
 }
