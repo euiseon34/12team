@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Task: Identifiable {
+struct MatrixTask: Identifiable {
   let id = UUID()
   let title: String
   let urgency: Int
@@ -15,7 +15,7 @@ struct Task: Identifiable {
 }
 
 struct UrgencyPreferenceMatrixView: View {
-  let tasks: [Task]
+  let tasks: [MatrixTask]
   
   private let cellSize: CGFloat = 50
   private let columns = Array(repeating: GridItem(.fixed(50), spacing: 4), count: 5)
@@ -71,7 +71,7 @@ struct UrgencyPreferenceMatrixView: View {
 
 // 셀 하나 컴포넌트 분리 (컴파일러 최적화에 도움)
 struct MatrixCell: View {
-  let tasks: [Task]
+  let tasks: [MatrixTask]
   let urgency: Int
   let preference: Int
   let cellSize: CGFloat
@@ -106,11 +106,11 @@ struct MatrixCell: View {
 
 #Preview {
   UrgencyPreferenceMatrixView(tasks: [
-    Task(title: "과제 제출", urgency: 5, preference: 5),
-    Task(title: "이메일 확인", urgency: 5, preference: 4),
-    Task(title: "회의 준비", urgency: 2, preference: 2),
-    Task(title: "운동하기", urgency: 1, preference: 2),
-    Task(title: "책 읽기", urgency: 1, preference: 5),
-    Task(title: "할 일 정리", urgency: 3, preference: 3),
+    MatrixTask(title: "과제 제출", urgency: 5, preference: 5),
+    MatrixTask(title: "이메일 확인", urgency: 5, preference: 4),
+    MatrixTask(title: "회의 준비", urgency: 2, preference: 2),
+    MatrixTask(title: "운동하기", urgency: 1, preference: 2),
+    MatrixTask(title: "책 읽기", urgency: 1, preference: 5),
+    MatrixTask(title: "할 일 정리", urgency: 3, preference: 3),
   ])
 }

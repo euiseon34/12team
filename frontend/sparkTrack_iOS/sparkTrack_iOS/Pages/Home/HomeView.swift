@@ -53,7 +53,7 @@ struct HomeView: View {
 
   private var urgencyPreferenceMatrix: some View {
     UrgencyPreferenceMatrixView(tasks: filteredEvents.map {
-      Task(title: $0.title, urgency: $0.urgency, preference: $0.preference)
+      MatrixTask(title: $0.title, urgency: $0.urgency, preference: $0.preference)
     })
   }
 

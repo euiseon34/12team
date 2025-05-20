@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct TaskManagerView: View {
-  @State private var tasks: [Task] = []
+  @State private var tasks: [MatrixTask] = []
   @State private var selectedDate = Date()
   @State private var showEventForm = false
   
@@ -18,12 +18,12 @@ struct TaskManagerView: View {
         showEventForm = true
       }
       
-      // 여기서 매트릭스에 전달
+      // 매트릭스에 전달
       UrgencyPreferenceMatrixView(tasks: tasks)
     }
     .sheet(isPresented: $showEventForm) {
       EventFormView(selectedDate: $selectedDate) { title, description, category, start, end, importance, preference  in
-        let newTask = Task(title: title, urgency: importance, preference: preference)
+        let newTask = MatrixTask(title: title, urgency: importance, preference: preference)
         tasks.append(newTask)
       }
     }

@@ -28,80 +28,80 @@ struct SignupRequest: Codable {
 
 // ✅ APIService 싱글톤 클래스
 class APIService {
-    
-    static let shared = APIService()
-    private init() {}
-    
-    let baseURL = "http://localhost:8080"
-    
-    /// ✅ Task를 Spring 서버에 저장하는 API
-    func createTask(task: EventRequest, completion: @escaping (Result<String, Error>) -> Void) {
-        guard let url = URL(string: "\(baseURL)/api/tasks") else {
-            completion(.failure(NSError(domain: "URL Error", code: -1)))
-            return
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        // JWT 토큰 헤더에 포함
-        if let token = UserDefaults.standard.string(forKey: "jwtToken") {
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        } else {
-            completion(.failure(NSError(domain: "Token Missing", code: -2)))
-            return
-        }
-
-        do {
-            request.httpBody = try JSONEncoder().encode(task)
-        } catch {
-            completion(.failure(error))
-            return
-        }
-
-        URLSession.shared.dataTask(with: request) { data, _, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-
-            if let data = data, let result = String(data: data, encoding: .utf8) {
-                completion(.success(result))
-            } else {
-                completion(.failure(NSError(domain: "No Data", code: -3)))
-            }
-        }.resume()
+  
+  static let shared = APIService()
+  private init() {}
+  
+  let baseURL = "http://localhost:8080"
+  
+  /// ✅ Task를 Spring 서버에 저장하는 API
+  func createTask(task: EventRequest, completion: @escaping (Result<String, Error>) -> Void) {
+    guard let url = URL(string: "\(baseURL)/api/tasks") else {
+      completion(.failure(NSError(domain: "URL Error", code: -1)))
+      return
     }
     
-    // ✅ 회원가입 API
-        func signup(request: SignupRequest, completion: @escaping (Result<String, Error>) -> Void) {
-            guard let url = URL(string: "\(baseURL)/signup") else {
-                completion(.failure(NSError(domain: "Invalid frontendURL", code: -1)))
-                return
-            }
-
-            var urlRequest = URLRequest(url: url)
-            urlRequest.httpMethod = "POST"
-            urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-
-            do {
-                urlRequest.httpBody = try JSONEncoder().encode(request)
-            } catch {
-                completion(.failure(error))
-                return
-            }
-
-            URLSession.shared.dataTask(with: urlRequest) { data, _, error in
-                if let error = error {
-                    completion(.failure(error))
-                    return
-                }
-                if let data = data, let result = String(data: data, encoding: .utf8) {
-                    completion(.success(result))
-                } else {
-                    completion(.failure(NSError(domain: "Empty response", code: -2)))
-                }
-            }.resume()
-        }
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    
+    // JWT 토큰 헤더에 포함
+    if let token = UserDefaults.standard.string(forKey: "jwtToken") {
+      request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    } else {
+      completion(.failure(NSError(domain: "Token Missing", code: -2)))
+      return
+    }
+    
+    do {
+      request.httpBody = try JSONEncoder().encode(task)
+    } catch {
+      completion(.failure(error))
+      return
+    }
+    
+    URLSession.shared.dataTask(with: request) { data, _, error in
+      if let error = error {
+        completion(.failure(error))
+        return
+      }
+      
+      if let data = data, let result = String(data: data, encoding: .utf8) {
+        completion(.success(result))
+      } else {
+        completion(.failure(NSError(domain: "No Data", code: -3)))
+      }
+    }.resume()
+  }
+  
+  // ✅ 회원가입 API
+  func signup(request: SignupRequest, completion: @escaping (Result<String, Error>) -> Void) {
+    guard let url = URL(string: "\(baseURL)/signup") else {
+      completion(.failure(NSError(domain: "Invalid frontendURL", code: -1)))
+      return
+    }
+    
+    var urlRequest = URLRequest(url: url)
+    urlRequest.httpMethod = "POST"
+    urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+    
+    do {
+      urlRequest.httpBody = try JSONEncoder().encode(request)
+    } catch {
+      completion(.failure(error))
+      return
+    }
+    
+    URLSession.shared.dataTask(with: urlRequest) { data, _, error in
+      if let error = error {
+        completion(.failure(error))
+        return
+      }
+      if let data = data, let result = String(data: data, encoding: .utf8) {
+        completion(.success(result))
+      } else {
+        completion(.failure(NSError(domain: "Empty response", code: -2)))
+      }
+    }.resume()
+  }
 }
