@@ -12,7 +12,7 @@ struct sparkTrack_iOSApp: App {
   var body: some Scene {
     WindowGroup {
       NavigationStack {
-        SignUpView()
+        LoginView()
       }
     }
   }
