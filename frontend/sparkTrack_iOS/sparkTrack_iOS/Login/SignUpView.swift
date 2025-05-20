@@ -32,7 +32,7 @@ struct SignUpView: View {
                         .autocapitalization(.none)
                 }
 
-                Section(header: Text("식사 시간 선호")) {
+                Section(header: Text("선호 시간대")) {
                     Picker("선호 시간", selection: $selectedTimePreference) {
                         ForEach(timeOptions, id: \.self) { Text($0) }
                     }
