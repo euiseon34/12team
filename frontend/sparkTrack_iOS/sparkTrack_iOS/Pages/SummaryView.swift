@@ -90,11 +90,12 @@ struct SummaryView: View {
                     .font(.caption2)
                     .rotationEffect(.degrees(-30))
                     .frame(width: 40)
+                    .padding(.top)
                 }
               }
             }
             .padding(.horizontal)
-            .frame(height: 120)
+            .frame(height: 200)
           }
         }
       }
