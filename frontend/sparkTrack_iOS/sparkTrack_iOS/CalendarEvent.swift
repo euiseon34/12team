@@ -7,12 +7,13 @@
 
 import Foundation
 
-struct CalendarEvent: Identifiable {
-    let id = UUID()
-    let date: Date
-    let title: String
-    let urgency: Int
-    let preference: Int
-    let startTime: Date?
-    let endTime: Date?
+struct CalendarEvent: Identifiable, Codable, Equatable {
+  let id = UUID()
+  let date: Date
+  let title: String
+  let urgency: Int
+  let preference: Int
+  let startTime: Date?
+  let endTime: Date?
+  var isCompleted: Bool = false
 }
