@@ -34,7 +34,9 @@ struct TabBarView: View {
             HomeView(eventStore: eventStore)
               .ignoresSafeArea()
           case .summary:
-            SummaryView()
+            SummaryView(
+                allEvents: loadToDoEvents()
+              )
               .ignoresSafeArea()
           case .user:
             UserPageView()
@@ -50,6 +52,15 @@ struct TabBarView: View {
     .edgesIgnoringSafeArea(.bottom)
   }
 }
+
+func loadToDoEvents() -> [CalendarEvent] {
+  if let data = UserDefaults.standard.data(forKey: "savedToDoEvents"),
+     let events = try? JSONDecoder().decode([CalendarEvent].self, from: data) {
+    return events
+  }
+  return []
+}
+
 
 #Preview {
   TabBarView()

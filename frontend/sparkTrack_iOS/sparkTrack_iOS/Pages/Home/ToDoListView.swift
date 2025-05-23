@@ -8,19 +8,24 @@
 import SwiftUI
 
 struct ToDoListView: View {
-  @State private var events: [CalendarEvent]
-  
+  @State private var events: [CalendarEvent] = []
+
   init(events: [CalendarEvent]) {
-    _events = State(initialValue: events)
+    if let data = UserDefaults.standard.data(forKey: "savedToDoEvents"),
+       let saved = try? JSONDecoder().decode([CalendarEvent].self, from: data) {
+      _events = State(initialValue: saved)
+    } else {
+      _events = State(initialValue: events)
+    }
   }
-  
+
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
       Text("📝 To-Do List")
         .font(.title3)
         .bold()
         .padding(.leading)
-      
+
       if events.isEmpty {
         Text("할 일이 없습니다.")
           .foregroundColor(.gray)
@@ -34,45 +39,53 @@ struct ToDoListView: View {
       }
     }
     .padding(.top, 20)
+    .onChange(of: events) { _ in
+      saveEvents()
+    }
   }
-  
+
   private func delete(event: CalendarEvent) {
     events.removeAll { $0.id == event.id }
   }
+
+  private func saveEvents() {
+    if let data = try? JSONEncoder().encode(events) {
+      UserDefaults.standard.set(data, forKey: "savedToDoEvents")
+    }
+  }
 }
+
 
 struct ToDoRowView: View {
   @Binding var event: CalendarEvent
-  @State private var isCompleted: Bool = false
   var onDelete: () -> Void
-  
+
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
       HStack {
         Button(action: {
-          isCompleted.toggle()
+          event.isCompleted.toggle() // 상태 변경 바인딩
         }) {
-          Image(systemName: isCompleted ? "checkmark.circle.fill" : "circle")
-            .foregroundColor(isCompleted ? .green : .gray)
+          Image(systemName: event.isCompleted ? "checkmark.circle.fill" : "circle")
+            .foregroundColor(event.isCompleted ? .green : .gray)
         }
-        
+
         VStack(alignment: .leading, spacing: 4) {
           Text(event.title)
             .font(.body)
             .fontWeight(.semibold)
-            .strikethrough(isCompleted, color: .gray)
-            .foregroundColor(isCompleted ? .gray : .primary)
-          
+            .strikethrough(event.isCompleted, color: .gray)
+            .foregroundColor(event.isCompleted ? .gray : .primary)
+
           if let start = event.startTime, let end = event.endTime {
             Text("\(formatTime(start)) - \(formatTime(end))")
               .font(.caption)
               .foregroundColor(.gray)
           }
         }
-        
+
         Spacer()
-        
-        // 삭제 버튼
+
         Button(role: .destructive) {
           onDelete()
         } label: {
@@ -86,7 +99,7 @@ struct ToDoRowView: View {
     }
     .padding(.horizontal)
   }
-  
+
   private func formatTime(_ date: Date) -> String {
     let formatter = DateFormatter()
     formatter.dateFormat = "HH:mm"
@@ -102,7 +115,8 @@ struct ToDoRowView: View {
       urgency: 4,
       preference: 5,
       startTime: Date(),
-      endTime: Calendar.current.date(byAdding: .hour, value: 1, to: Date())
+      endTime: Calendar.current.date(byAdding: .hour, value: 1, to: Date()),
+      isCompleted: false
     )
   ])
 }
