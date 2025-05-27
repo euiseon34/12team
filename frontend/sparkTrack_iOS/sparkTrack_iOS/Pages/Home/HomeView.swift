@@ -10,6 +10,7 @@ import SwiftUI
 struct HomeView: View {
   @ObservedObject var eventStore: EventStore
   @State private var selectedDate: Date = Date()
+  @State private var showMatrix: Bool = false // ✅ 매트릭스 접힘 상태
 
   private var filteredEvents: [CalendarEvent] {
     eventStore.events.filter { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }
@@ -19,7 +20,25 @@ struct HomeView: View {
     ScrollView {
       VStack(spacing: 20) {
         dateNavigationBar
-        urgencyPreferenceMatrix
+
+        // ✅ 접기/펼치기 버튼
+        Button(action: {
+          withAnimation {
+            showMatrix.toggle()
+          }
+        }) {
+          HStack {
+            Image(systemName: showMatrix ? "chevron.down" : "chevron.right")
+            Text("우선순위 매트릭스 \(showMatrix ? "접기" : "펼치기")")
+          }
+          .foregroundColor(.blue)
+        }
+
+        // ✅ 매트릭스 섹션 (토글됨)
+        if showMatrix {
+          urgencyPreferenceMatrix
+        }
+
         todoListSection
       }
       .padding(.top, 30)
