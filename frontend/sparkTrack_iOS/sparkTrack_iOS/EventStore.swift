@@ -10,6 +10,3 @@ import Foundation
 class EventStore: ObservableObject {
     @Published var events: [CalendarEvent] = []
 }
-//#Preview {
-//    EventStore()
-//}
