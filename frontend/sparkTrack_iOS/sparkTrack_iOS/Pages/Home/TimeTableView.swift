@@ -107,7 +107,7 @@ struct TimeTableView: View {
       urgency: 3,
       preference: 2,
       startTime: Calendar.current.date(bySettingHour: 13, minute: 0, second: 0, of: Date()),
-      endTime: Calendar.current.date(bySettingHour: 15, minute: 0, second: 0, of: Date())
+      endTime: Calendar.current.date(bySettingHour: 15, minute: 0, second: 0, of: Date()), isCompleted: false
     ),
     CalendarEvent(
       date: Date(),
@@ -115,9 +115,9 @@ struct TimeTableView: View {
       urgency: 4,
       preference: 4,
       startTime: Calendar.current.date(bySettingHour: 15, minute: 0, second: 0, of: Date()),
-      endTime: Calendar.current.date(bySettingHour: 17, minute: 0, second: 0, of: Date())
+      endTime: Calendar.current.date(bySettingHour: 17, minute: 0, second: 0, of: Date()), isCompleted: false
     )
   ]
   
-  return TimeTableView(events: sampleEvents)
+  TimeTableView(events: sampleEvents)
 }
