@@ -16,5 +16,5 @@ struct CalendarEvent: Identifiable, Codable, Equatable {
   var startTime: Date?
   var endTime: Date?
   var isCompleted: Bool
-  var completionRate: Int = 0  // ✅ 달성도 (0~100)
+  var completionRate: Int = 0  // 0.0 ~ 100.0
 }
