@@ -60,11 +60,21 @@ struct ToDoRowView: View {
   @Binding var event: CalendarEvent
   var onDelete: () -> Void
 
+  @State private var showSlider = false
+  @State private var tempRate: Double = 100
+
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
       HStack {
         Button(action: {
-          event.isCompleted.toggle() // 상태 변경 바인딩
+          event.isCompleted.toggle()
+          if event.isCompleted {
+            showSlider = true
+            tempRate = Double(event.completionRate)
+          } else {
+            event.completionRate = 0
+            showSlider = false
+          }
         }) {
           Image(systemName: event.isCompleted ? "checkmark.circle.fill" : "circle")
             .foregroundColor(event.isCompleted ? .green : .gray)
@@ -82,6 +92,12 @@ struct ToDoRowView: View {
               .font(.caption)
               .foregroundColor(.gray)
           }
+
+          if event.isCompleted {
+            Text("달성도: \(event.completionRate)%")
+              .font(.caption2)
+              .foregroundColor(.blue)
+          }
         }
 
         Spacer()
@@ -92,12 +108,39 @@ struct ToDoRowView: View {
           Image(systemName: "trash")
         }
       }
-      .padding()
-      .background(Color(.systemBackground))
-      .cornerRadius(12)
-      .shadow(color: .gray.opacity(0.2), radius: 2, x: 0, y: 2)
+
+      // ✅ 달성도 슬라이더
+      if showSlider {
+        VStack(alignment: .leading, spacing: 8) {
+          Text("이 작업의 달성도를 입력해주세요")
+            .font(.caption)
+
+          Slider(value: $tempRate, in: 0...100, step: 1)
+          
+          // 👇 실시간 달성도 표시
+          Text("현재 달성도: \(Int(tempRate))%")
+            .font(.caption2)
+            .foregroundColor(.gray)
+
+          HStack {
+            Spacer()
+            Button("확인") {
+              event.completionRate = Int(tempRate)
+              showSlider = false
+            }
+            .font(.caption)
+          }
+        }
+        .padding(.horizontal)
+        .transition(.opacity)
+      }
     }
+    .padding()
+    .background(Color(.systemBackground))
+    .cornerRadius(12)
+    .shadow(color: .gray.opacity(0.2), radius: 2, x: 0, y: 2)
     .padding(.horizontal)
+    .animation(.easeInOut(duration: 0.2), value: showSlider)
   }
 
   private func formatTime(_ date: Date) -> String {
@@ -106,6 +149,7 @@ struct ToDoRowView: View {
     return formatter.string(from: date)
   }
 }
+
 
 #Preview {
   ToDoListView(events: [
