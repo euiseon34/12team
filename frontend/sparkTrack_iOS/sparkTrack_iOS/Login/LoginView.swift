@@ -12,6 +12,7 @@ struct LoginView: View {
   @State private var password = ""
   @State private var navigateToMain = false
   @State private var navigateToSignUp = false
+  @AppStorage("userEmail") var userEmail: String = ""
   
   var body: some View {
     NavigationView {
@@ -53,8 +54,8 @@ struct LoginView: View {
     AuthService.shared.login(email: username, password: password) { token in
       DispatchQueue.main.async {
         if let token = token {
-          print("✅ 로그인 성공")
-          SessionManager.shared.saveAuthToken(token)  // 저장
+          SessionManager.shared.saveAuthToken(token)
+          userEmail = username  // ✅ 이메일 저장!
           self.navigateToMain = true
         } else {
           print("❌ 로그인 실패")
