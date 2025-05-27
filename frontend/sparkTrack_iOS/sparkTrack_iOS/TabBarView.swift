@@ -37,6 +37,7 @@ struct TabBarView: View {
             SummaryView(
                 allEvents: loadToDoEvents()
               )
+              .padding(.top, 50)
               .ignoresSafeArea()
           case .user:
             UserPageView()
