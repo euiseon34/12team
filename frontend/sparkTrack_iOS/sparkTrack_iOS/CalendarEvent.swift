@@ -8,12 +8,13 @@
 import Foundation
 
 struct CalendarEvent: Identifiable, Codable, Equatable {
-  let id = UUID()
-  let date: Date
-  let title: String
-  let urgency: Int
-  let preference: Int
-  let startTime: Date?
-  let endTime: Date?
-  var isCompleted: Bool = false
+  var id: UUID = UUID()
+  var date: Date
+  var title: String
+  var urgency: Int
+  var preference: Int
+  var startTime: Date?
+  var endTime: Date?
+  var isCompleted: Bool
+  var completionRate: Int = 0  // ✅ 달성도 (0~100)
 }
