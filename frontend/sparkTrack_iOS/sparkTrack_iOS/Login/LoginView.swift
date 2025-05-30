@@ -45,6 +45,7 @@ struct LoginView: View {
         NavigationLink(destination: TabBarView(), isActive: $navigateToMain) {
           EmptyView()
         }
+        .navigationBarBackButtonHidden(true)
       }
       .padding()
     }
