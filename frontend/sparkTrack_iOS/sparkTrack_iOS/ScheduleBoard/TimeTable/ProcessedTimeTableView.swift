@@ -1,34 +1,27 @@
 //
-//  ProcessedTimetableView.swift
+//  ProcessedTimeTableView.swift
 //  sparkTrack_iOS
 //
-//  Created by 박서현 on 5/20/25.
+//  Created by 박서현 on 5/30/25.
 //
 
 import SwiftUI
 
 struct TimetableResponse: Codable {
-    let data: [TimetableEntry]
-}
-
-struct TimetableEntry: Codable, Identifiable {
-  let id = UUID()
-  let day: String           // "월", "화", ...
-  let startTime: String     // "09:00"
-  let endTime: String       // "12:00"
-  let subject: String
+  let data: [TimetableEntry]
 }
 
 struct ProcessedTimetableView: View {
   let entries: [TimetableEntry]
-  
-  // 요일 순서 고정
-  private let weekdays = ["월", "화", "수", "목", "금"]
-  
+
+  private let weekdays = ["월", "화", "수", "목", "금", "토", "일"]
+
   var groupedByDay: [String: [TimetableEntry]] {
-    Dictionary(grouping: entries, by: { $0.day })
+    Dictionary(grouping: entries) { entry in
+      weekdayString(from: entry.date)
+    }
   }
-  
+
   var body: some View {
     ScrollView {
       VStack(alignment: .leading, spacing: 16) {
@@ -36,7 +29,7 @@ struct ProcessedTimetableView: View {
           VStack(alignment: .leading, spacing: 4) {
             Text("📅 \(day)요일")
               .font(.headline)
-            
+
             let dayEntries = groupedByDay[day] ?? []
             if dayEntries.isEmpty {
               Text(" - 없음")
@@ -66,12 +59,18 @@ struct ProcessedTimetableView: View {
       .padding()
     }
   }
+
+  private func weekdayString(from date: Date) -> String {
+    let weekdaySymbols = ["일", "월", "화", "수", "목", "금", "토"]
+    let index = Calendar.current.component(.weekday, from: date) - 1
+    return weekdaySymbols[(index + 7) % 7]
+  }
 }
 
 #Preview {
   ProcessedTimetableView(entries: [
-    TimetableEntry(day: "수", startTime: "09:00", endTime: "12:00", subject: "공업수학1"),
-    TimetableEntry(day: "수", startTime: "12:00", endTime: "13:30", subject: "통계학개론"),
-    TimetableEntry(day: "목", startTime: "12:00", endTime: "15:00", subject: "공학설계기")
+    TimetableEntry(date: Date(), startTime: "09:00", endTime: "12:00", subject: "공업수학1"),
+    TimetableEntry(date: Date(), startTime: "13:00", endTime: "14:30", subject: "통계학개론"),
+    TimetableEntry(date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!, startTime: "12:00", endTime: "15:00", subject: "공학설계기")
   ])
 }
