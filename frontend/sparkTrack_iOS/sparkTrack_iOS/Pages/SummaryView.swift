@@ -23,13 +23,13 @@ struct SummaryView: View {
     let difference = todayCompletion - pastCompletion
     let diffSymbol = difference > 0 ? "▲" : (difference < 0 ? "▼" : "–")
 
-    VStack(spacing: 24) {
+    VStack(spacing: 32) {
       Text("📊 To-Do 달성률 요약")
         .font(.title2.bold())
 
       RingChartView(progress: Double(todayCompletion) / 100)
 
-      VStack(spacing: 8) {
+      VStack(spacing: 12) {
         Text("📅 비교 기준 날짜 선택")
           .font(.subheadline)
 
@@ -64,7 +64,6 @@ struct SummaryView: View {
             .font(.caption.bold())
         }
       }
-      .padding(.horizontal)
 
       Divider()
 
@@ -77,17 +76,13 @@ struct SummaryView: View {
             x: .value("날짜", data.date, unit: .day),
             y: .value("달성도", data.progress)
           )
-          .foregroundStyle(.blue)
+          .foregroundStyle(.orange)
         }
-        .chartYScale(domain: 0...100) // ✅ 최대값 고정
+        .chartYScale(domain: 0...100)
         .frame(height: 180)
-
       }
-      .padding()
     }
     .padding()
-    
-    Spacer()
   }
 
   private func events(on date: Date) -> [CalendarEvent] {
@@ -128,8 +123,11 @@ struct DailyProgress: Identifiable {
   let progress: Int
 }
 
+import SwiftUI
+
 struct RingChartView: View {
   var progress: Double
+  @State private var isGlowing = false
 
   var body: some View {
     ZStack {
@@ -141,16 +139,23 @@ struct RingChartView: View {
         .stroke(
           AngularGradient(
             gradient: Gradient(colors: [
-              Color(hue: 0.65, saturation: 0.8, brightness: 1.0),
-              Color(hue: 0.55, saturation: 0.9, brightness: 1.0),
-              Color(hue: 0.9, saturation: 0.7, brightness: 1.0)
+              Color.yellow,
+              Color(hue: 0.12, saturation: 1.0, brightness: 1.0),
+              Color(hue: 0.13, saturation: 0.8, brightness: 0.95)
             ]),
             center: .center
           ),
           style: StrokeStyle(lineWidth: 10, lineCap: .round)
         )
         .rotationEffect(.degrees(-90))
-        .animation(.easeOut(duration: 1), value: progress)
+        .shadow(color: Color.yellow.opacity(0.6), radius: 10)
+        .shadow(color: Color.white.opacity(0.3), radius: 4)
+        .scaleEffect(isGlowing ? 1.04 : 1.0)
+        .opacity(isGlowing ? 1.0 : 0.9)
+        .animation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: isGlowing)
+        .onAppear {
+          isGlowing = true
+        }
 
       VStack(spacing: 4) {
         Text("완료율")

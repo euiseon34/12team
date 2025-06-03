@@ -58,7 +58,8 @@ struct DailyTimeTableView: View {
             .frame(width: UIScreen.main.bounds.width - 80, height: height)
             .background(Color.blue.opacity(0.2))
             .cornerRadius(8)
-            .offset(y: startY)
+            .offset(y: startY + 10)
+            .offset(x: 69)
           }
         }
         .padding(.leading)

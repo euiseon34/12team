@@ -65,7 +65,7 @@ struct GridTimeTableView: View {
               .cornerRadius(6)
               .position(
                 x: 40 + blockWidth * CGFloat(xIndex) + blockWidth / 2,
-                y: 5 + startY + height / 2
+                y: 1 + startY + height / 2
               )
             }
           }
