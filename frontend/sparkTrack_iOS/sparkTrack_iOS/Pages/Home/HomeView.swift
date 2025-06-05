@@ -10,7 +10,7 @@ import SwiftUI
 struct HomeView: View {
   @ObservedObject var eventStore: EventStore
   @State private var selectedDate: Date = Date()
-  @State private var showMatrix: Bool = false // ✅ 매트릭스 접힘 상태
+  @State private var selectedSection: HomeSection = .todo
 
   private var filteredEvents: [CalendarEvent] {
     eventStore.events.filter { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }
@@ -21,25 +21,26 @@ struct HomeView: View {
       VStack(spacing: 20) {
         dateNavigationBar
 
-        // ✅ 접기/펼치기 버튼
-        Button(action: {
-          withAnimation {
-            showMatrix.toggle()
+        ConstellationBoardView(viewModel: ConstellationViewModel())
+
+        Picker("보기", selection: $selectedSection) {
+          ForEach(HomeSection.allCases, id: \.self) { section in
+            Text(section.rawValue).tag(section)
           }
-        }) {
-          HStack {
-            Image(systemName: showMatrix ? "chevron.down" : "chevron.right")
-            Text("우선순위 매트릭스 \(showMatrix ? "접기" : "펼치기")")
-          }
-          .foregroundColor(.blue)
+        }
+        .pickerStyle(.segmented)
+        .padding(.horizontal)
+
+        if selectedSection == .todo {
+          ToDoListView(events: filteredEvents)
+        } else {
+          UrgencyPreferenceMatrixView(tasks: filteredEvents.map {
+            MatrixTask(title: $0.title, urgency: $0.urgency, preference: $0.preference)
+          })
         }
 
-        // ✅ 매트릭스 섹션 (토글됨)
-        if showMatrix {
-          urgencyPreferenceMatrix
-        }
-
-        todoListSection
+        Spacer()
+          .frame(height: 80) // ✅ 탭바에 가려지지 않도록 하단 여백 추가
       }
       .padding(.top, 30)
     }
@@ -70,16 +71,6 @@ struct HomeView: View {
     .padding(.top, 50)
   }
 
-  private var urgencyPreferenceMatrix: some View {
-    UrgencyPreferenceMatrixView(tasks: filteredEvents.map {
-      MatrixTask(title: $0.title, urgency: $0.urgency, preference: $0.preference)
-    })
-  }
-
-  private var todoListSection: some View {
-    ToDoListView(events: filteredEvents)
-  }
-
   private func formattedDate(_ date: Date) -> String {
     let formatter = DateFormatter()
     formatter.locale = Locale(identifier: "ko_KR")
@@ -88,6 +79,12 @@ struct HomeView: View {
   }
 }
 
+enum HomeSection: String, CaseIterable {
+  case todo = "투두"
+  case matrix = "사분면"
+}
+
 #Preview {
   HomeView(eventStore: EventStore())
 }
+
