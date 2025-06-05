@@ -8,7 +8,7 @@
 import SwiftUI
 
 enum Tab {
-  case evaluation
+  case timeboard
   case calendar
   case home
   case summary
@@ -24,8 +24,9 @@ struct TabBarView: View {
       ZStack(alignment: .bottom) {
         VStack(spacing: 0) {
           switch selectedTab {
-          case .evaluation:
-            DayEvaluationView()
+          case .timeboard:
+            ScheduleBoardView()
+              .padding(.top, 60)
               .ignoresSafeArea()
           case .calendar:
             CalendarView(eventStore: eventStore)
@@ -37,7 +38,7 @@ struct TabBarView: View {
             SummaryView(
                 allEvents: loadToDoEvents()
               )
-//              .padding(.top, 50)
+              .padding(.top, 50)
               .ignoresSafeArea()
           case .user:
             UserPageView()

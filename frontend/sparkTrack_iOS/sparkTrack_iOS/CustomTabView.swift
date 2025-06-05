@@ -31,11 +31,11 @@ struct CustomTabView: View {
         Spacer()
         HStack {
           Spacer()
-          Button(action: {selectedTab = .evaluation}){
+          Button(action: {selectedTab = .timeboard}){
             ButtonView(
               icon: Image(systemName: "pencil"),
-              title: "평가",
-              isSelected: selectedTab == .evaluation
+              title: "시간표",
+              isSelected: selectedTab == .timeboard
             )
           }
           
