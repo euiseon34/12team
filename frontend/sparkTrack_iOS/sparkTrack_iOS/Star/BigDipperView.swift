@@ -13,6 +13,8 @@ struct BigDipperView: View {
 
   var body: some View {
     ZStack {
+      StarFieldView(starCount: 60)
+      
       // ⭐️ 전체 연결 선 (희미한 밑그림)
       if viewModel.stars.count > 1 {
         Path { path in
@@ -82,6 +84,49 @@ struct AnimatedConstellationLine: View {
       }
       .stroke(gradient, style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round))
       .animation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true), value: animate)
+    }
+  }
+}
+
+struct StarFieldView: View {
+  let starCount: Int
+  @State private var twinkle = false
+
+  struct Star: Identifiable {
+    let id = UUID()
+    let x: CGFloat
+    let y: CGFloat
+    let size: CGFloat
+    let delay: Double
+  }
+
+  let stars: [Star] = (0..<60).map { _ in
+    Star(
+      x: CGFloat.random(in: 0...300),
+      y: CGFloat.random(in: 0...300),
+      size: CGFloat.random(in: 1...3),
+      delay: Double.random(in: 0...1)
+    )
+  }
+
+  var body: some View {
+    ZStack {
+      ForEach(stars) { star in
+        Circle()
+          .fill(Color.white.opacity(0.8))
+          .frame(width: star.size, height: star.size)
+          .position(x: star.x, y: star.y)
+          .opacity(twinkle ? 0.3 : 1.0)
+          .animation(
+            Animation.easeInOut(duration: 1.5)
+              .repeatForever()
+              .delay(star.delay),
+            value: twinkle
+          )
+      }
+    }
+    .onAppear {
+      twinkle.toggle()
     }
   }
 }
