@@ -16,7 +16,7 @@ struct SignUpView: View {
   
   @Environment(\.dismiss) private var dismiss
   
-  let timeOptions = ["아침", "점심", "저녁"]
+  let timeOptions = ["아침", "점심", "저녁", "새벽"]
   
   var body: some View {
     VStack {

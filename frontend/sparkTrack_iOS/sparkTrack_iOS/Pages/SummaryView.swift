@@ -23,66 +23,70 @@ struct SummaryView: View {
     let difference = todayCompletion - pastCompletion
     let diffSymbol = difference > 0 ? "▲" : (difference < 0 ? "▼" : "–")
 
-    VStack(spacing: 32) {
-      Text("📊 To-Do 달성률 요약")
-        .font(.title2.bold())
+    ScrollView {
+      VStack(spacing: 32) {
+        Text("📊 To-Do 달성률 요약")
+          .font(.title2.bold())
 
-      RingChartView(progress: Double(todayCompletion) / 100)
+        RingChartView(progress: Double(todayCompletion) / 100)
 
-      VStack(spacing: 12) {
-        Text("📅 비교 기준 날짜 선택")
-          .font(.subheadline)
+        VStack(spacing: 12) {
+          Text("📅 비교 기준 날짜 선택")
+            .font(.subheadline)
 
-        DatePicker("", selection: $comparisonDate, displayedComponents: .date)
-          .datePickerStyle(.compact)
-          .labelsHidden()
+          DatePicker("", selection: $comparisonDate, displayedComponents: .date)
+            .datePickerStyle(.compact)
+            .labelsHidden()
 
-        HStack(spacing: 32) {
-          VStack {
-            Text("오늘")
-              .font(.caption)
-            Text("\(todayCompletion)%")
-              .font(.title3)
-              .foregroundColor(.blue)
+          HStack(spacing: 32) {
+            VStack {
+              Text("오늘")
+                .font(.caption)
+              Text("\(todayCompletion)%")
+                .font(.title3)
+                .foregroundColor(.blue)
+            }
+
+            VStack {
+              Text(formattedDate(comparisonDate))
+                .font(.caption)
+              Text("\(pastCompletion)%")
+                .font(.title3)
+                .foregroundColor(.gray)
+            }
           }
 
-          VStack {
-            Text(formattedDate(comparisonDate))
+          HStack(spacing: 4) {
+            Text("변화:")
               .font(.caption)
-            Text("\(pastCompletion)%")
-              .font(.title3)
-              .foregroundColor(.gray)
+            Text(diffSymbol)
+              .foregroundColor(difference > 0 ? .green : difference < 0 ? .red : .gray)
+            Text("\(abs(difference))%")
+              .font(.caption.bold())
           }
         }
 
-        HStack(spacing: 4) {
-          Text("변화:")
-            .font(.caption)
-          Text(diffSymbol)
-            .foregroundColor(difference > 0 ? .green : difference < 0 ? .red : .gray)
-          Text("\(abs(difference))%")
-            .font(.caption.bold())
+        Divider()
+
+        VStack(alignment: .leading, spacing: 8) {
+          Text("📈 최근 7일간 평균 달성도")
+            .font(.subheadline)
+
+          Chart(getWeeklyData()) { data in
+            BarMark(
+              x: .value("날짜", data.date, unit: .day),
+              y: .value("달성도", data.progress)
+            )
+            .foregroundStyle(.orange)
+          }
+          .chartYScale(domain: 0...100)
+          .frame(height: 180)
         }
+
+        Spacer(minLength: 40) // 스크롤 하단 여유 공간
       }
-
-      Divider()
-
-      VStack(alignment: .leading, spacing: 8) {
-        Text("📈 최근 7일간 평균 달성도")
-          .font(.subheadline)
-
-        Chart(getWeeklyData()) { data in
-          BarMark(
-            x: .value("날짜", data.date, unit: .day),
-            y: .value("달성도", data.progress)
-          )
-          .foregroundStyle(.orange)
-        }
-        .chartYScale(domain: 0...100)
-        .frame(height: 180)
-      }
+      .padding()
     }
-    .padding()
   }
 
   private func events(on date: Date) -> [CalendarEvent] {
