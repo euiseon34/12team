@@ -62,6 +62,7 @@ struct ToDoRowView: View {
 
   @State private var showSlider = false
   @State private var tempRate: Double = 100
+  @State private var showTimer = false
 
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
@@ -109,15 +110,13 @@ struct ToDoRowView: View {
         }
       }
 
-      // ✅ 달성도 슬라이더
       if showSlider {
         VStack(alignment: .leading, spacing: 8) {
           Text("이 작업의 달성도를 입력해주세요")
             .font(.caption)
 
           Slider(value: $tempRate, in: 0...100, step: 1)
-          
-          // 👇 실시간 달성도 표시
+
           Text("현재 달성도: \(Int(tempRate))%")
             .font(.caption2)
             .foregroundColor(.gray)
@@ -134,6 +133,26 @@ struct ToDoRowView: View {
         .padding(.horizontal)
         .transition(.opacity)
       }
+
+      if !event.isCompleted {
+        Button("⏱️ 시작") {
+          showTimer = true
+        }
+        .font(.caption)
+        .sheet(isPresented: $showTimer) {
+          CountdownView(
+            counter: 0,
+            countTo: Int(event.durationInSeconds ?? 1800),
+            onComplete: { actual in
+              if actual >= Int((event.durationInSeconds ?? 1800) / 2) {
+                event.isCompleted = true
+                event.completionRate = 100
+              }
+              showTimer = false
+            }
+          )
+        }
+      }
     }
     .padding()
     .background(Color(.systemBackground))
@@ -147,6 +166,13 @@ struct ToDoRowView: View {
     let formatter = DateFormatter()
     formatter.dateFormat = "HH:mm"
     return formatter.string(from: date)
+  }
+}
+
+extension CalendarEvent {
+  var durationInSeconds: Double? {
+    guard let start = startTime, let end = endTime else { return nil }
+    return end.timeIntervalSince(start)
   }
 }
 

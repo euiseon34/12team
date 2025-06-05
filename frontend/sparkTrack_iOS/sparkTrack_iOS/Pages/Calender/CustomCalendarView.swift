@@ -74,14 +74,17 @@ struct CustomCalendarView: View {
     .sheet(isPresented: $showEventForm) {
       if let selectedDate {
         EventFormView(selectedDate: .constant(selectedDate)) { title, description, category, start, end, urgency, preference in
-          eventStore.events.append(CalendarEvent(
+          let newEvent = CalendarEvent(
             date: selectedDate,
             title: title,
             urgency: urgency,
             preference: preference,
             startTime: start,
-            endTime: end, isCompleted: false
-          ))
+            endTime: end,
+            isCompleted: false
+          )
+          eventStore.events.append(newEvent)
+          saveEventsToUserDefaults() // ✅ 여기서 저장해주기!
         }
       }
     }
@@ -190,6 +193,12 @@ struct CustomCalendarView: View {
     formatter.timeZone = TimeZone.current
     formatter.dateFormat = "yyyy년 M월 d일"
     return formatter.string(from: date)
+  }
+  
+  func saveEventsToUserDefaults() {
+    if let data = try? JSONEncoder().encode(eventStore.events) {
+      UserDefaults.standard.set(data, forKey: "savedToDoEvents")
+    }
   }
 }
 

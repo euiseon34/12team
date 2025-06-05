@@ -8,25 +8,36 @@
 import SwiftUI
 
 struct CountdownView: View {
+  @Environment(\.dismiss) var dismiss
   @State var counter: Int = 0
-  var countTo: Int = 30
-  
+  var countTo: Int
+  var onComplete: (Int) -> Void
+
   var body: some View {
-    VStack{
-      ZStack{
+    VStack {
+      ZStack {
         ProgressTrackView()
         ProgressBarView(counter: counter, countTo: countTo)
         ClockView(counter: counter, countTo: countTo)
       }
+
+      Button("⏹️ 종료") {
+        onComplete(counter)
+        dismiss()
+      }
+      .padding()
     }
-    .onReceive(timer) { time in
-      if (self.counter < self.countTo) {
-        self.counter += 1
+    .onReceive(timer) { _ in
+      if counter < countTo {
+        counter += 1
       }
     }
   }
 }
 
+
 #Preview {
-    CountdownView()
+  CountdownView(countTo: 30) { seconds in
+    print("⏰ 타이머 종료: \(seconds)초 진행됨")
+  }
 }

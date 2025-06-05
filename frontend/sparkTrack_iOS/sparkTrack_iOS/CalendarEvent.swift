@@ -17,4 +17,12 @@ struct CalendarEvent: Identifiable, Codable, Equatable {
   var endTime: Date?
   var isCompleted: Bool
   var completionRate: Int = 0  // 0.0 ~ 100.0
+  
+  var actualDuration: Int? = nil         // 사용자가 타이머로 측정한 실제 시간(초)
+  var canBeChecked: Bool {               // 자동 계산되는 속성
+    guard let start = startTime,
+          let end = endTime,
+          let actual = actualDuration else { return false }
+    return Double(actual) >= end.timeIntervalSince(start) / 2
+  }
 }
