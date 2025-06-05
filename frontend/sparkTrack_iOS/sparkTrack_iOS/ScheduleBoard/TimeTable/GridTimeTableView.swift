@@ -12,7 +12,7 @@ struct GridTimeTableView: View {
 
   private let weekdays = ["월", "화", "수", "목", "금", "토", "일"]
   private let startHour = 8
-  private let endHour = 20
+  private let endHour = 24
   private let hourHeight: CGFloat = 60
 
   var body: some View {
@@ -28,7 +28,7 @@ struct GridTimeTableView: View {
               .background(Color.gray.opacity(0.2))
           }
         }
-
+        
         ZStack(alignment: .topLeading) {
           VStack(spacing: 0) {
             ForEach(startHour..<endHour, id: \.self) { hour in
@@ -44,13 +44,13 @@ struct GridTimeTableView: View {
               }
             }
           }
-
+          
           ForEach(entries) { entry in
             let weekday = weekdayString(from: entry.date)
             if let xIndex = weekdays.firstIndex(of: weekday) {
               let startY = yOffset(for: entry.startTime)
               let height = blockHeight(start: entry.startTime, end: entry.endTime)
-
+              
               VStack(spacing: 2) {
                 Text(entry.subject)
                   .font(.caption2)
