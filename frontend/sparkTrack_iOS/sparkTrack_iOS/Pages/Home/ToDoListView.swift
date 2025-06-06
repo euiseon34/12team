@@ -5,64 +5,84 @@
 //  Created by 박서현 on 4/27/25.
 //
 
+//
+//  ToDoListView.swift
+//  sparkTrack_iOS
+//
+//  Created by 박서현 on 4/27/25.
+//
+
 import SwiftUI
 
 struct ToDoListView: View {
+  @Binding var events: [CalendarEvent]         // ✅ 외부에서 바인딩으로 전달받음
+  let selectedDate: Date
   let constellationVM: ConstellationViewModel
-  @State private var events: [CalendarEvent] = []
-  
-  // ✅ 초기화 시 UserDefaults에서 이벤트 불러오기
-  init(events: [CalendarEvent], constellationVM: ConstellationViewModel) {
-    self.constellationVM = constellationVM
-    
-    if let data = UserDefaults.standard.data(forKey: "savedToDoEvents"),
-       let saved = try? JSONDecoder().decode([CalendarEvent].self, from: data) {
-      print("✅ [UserDefaults] 저장된 ToDo 이벤트 불러오기 성공 (\(saved.count)개)")
-      _events = State(initialValue: saved)
-    } else {
-      print("⚠️ [UserDefaults] 저장된 데이터 없음 - 초기 events 사용")
-      _events = State(initialValue: events)
+
+  // ✅ 선택된 날짜에 맞는 이벤트만 필터링
+  private var filteredEvents: [Binding<CalendarEvent>] {
+    $events.filter { binding in
+      Calendar.current.isDate(binding.wrappedValue.date, inSameDayAs: selectedDate)
     }
   }
-  
+
   var body: some View {
     VStack(alignment: .leading, spacing: 16) {
       Text("📝 To-Do List")
         .font(.title3)
         .bold()
         .padding(.leading)
-      
-      if events.isEmpty {
+
+      if filteredEvents.isEmpty {
         Text("할 일이 없습니다.")
           .foregroundColor(.gray)
           .padding()
       } else {
-        ForEach($events) { $event in
-          ToDoRowView(event: $event, onDelete: {
-            delete(event: event)
-          }, constellationVM: constellationVM)
+        ForEach(filteredEvents) { $event in
+          ToDoRowView(
+            event: $event,
+            onDelete: {
+              delete(event: event)
+            },
+            constellationVM: constellationVM
+          )
         }
       }
     }
     .padding(.top, 20)
     .onChange(of: events) { _ in
-      saveEvents() // ✅ 이벤트 배열 변경 시 자동 저장
+      saveEventsToUserDefaults()
+    }
+    .onAppear {
+      loadEventsFromUserDefaults()
     }
   }
-  
-  // ✅ 이벤트 삭제
+
+  // ✅ 이벤트 삭제 함수
   private func delete(event: CalendarEvent) {
-    print("🗑️ [ToDo] 이벤트 삭제: \(event.title)")
+    print("🗑️ [ToDo] 이벤트 삭제됨: \(event.title)")
     events.removeAll { $0.id == event.id }
   }
-  
-  // ✅ UserDefaults에 이벤트 저장
-  private func saveEvents() {
-    if let data = try? JSONEncoder().encode(events) {
+
+  // ✅ UserDefaults에 저장
+  private func saveEventsToUserDefaults() {
+    do {
+      let data = try JSONEncoder().encode(events)
       UserDefaults.standard.set(data, forKey: "savedToDoEvents")
-      print("💾 [UserDefaults] ToDo 이벤트 저장 완료 (\(events.count)개)")
+      print("💾 [UserDefaults] 이벤트 저장 완료 (\(events.count)개)")
+    } catch {
+      print("❌ [UserDefaults] 이벤트 저장 실패: \(error.localizedDescription)")
+    }
+  }
+
+  // ✅ UserDefaults에서 불러오기
+  private func loadEventsFromUserDefaults() {
+    if let data = UserDefaults.standard.data(forKey: "savedToDoEvents"),
+       let decoded = try? JSONDecoder().decode([CalendarEvent].self, from: data) {
+      events = decoded
+      print("📥 [UserDefaults] 이벤트 불러오기 완료 (\(events.count)개)")
     } else {
-      print("❌ [UserDefaults] ToDo 이벤트 저장 실패 - 인코딩 오류")
+      print("⚠️ [UserDefaults] 저장된 이벤트 없음 또는 디코딩 실패")
     }
   }
 }
@@ -194,16 +214,6 @@ struct ToDoRowView: View {
     formatter.dateFormat = "HH:mm"
     return formatter.string(from: date)
   }
-  
-  func calculateScore(for event: CalendarEvent) -> Int {
-    let importanceWeight = 0.7
-    let completionWeight = 0.3
-
-    let importanceScore = Double(event.urgency) / 5.0 * 100.0
-    let completionScore = Double(event.completionRate)
-
-    return Int((importanceWeight * importanceScore + completionWeight * completionScore).rounded())
-  }
 }
 
 extension CalendarEvent {
@@ -213,9 +223,8 @@ extension CalendarEvent {
   }
 }
 
-
 #Preview {
-  ToDoListView(events: [
+  StatefulPreviewWrapper([
     CalendarEvent(
       date: Date(),
       title: "스터디 준비",
@@ -225,5 +234,11 @@ extension CalendarEvent {
       endTime: Calendar.current.date(byAdding: .hour, value: 1, to: Date()),
       isCompleted: false
     )
-  ], constellationVM: ConstellationViewModel())
+  ]) { $events in
+    ToDoListView(
+      events: $events,
+      selectedDate: Date(),
+      constellationVM: ConstellationViewModel()
+    )
+  }
 }

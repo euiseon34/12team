@@ -33,7 +33,11 @@ struct HomeView: View {
         .padding(.horizontal)
 
         if selectedSection == .todo {
-          ToDoListView(events: filteredEvents, constellationVM: constellationVM)
+          ToDoListView(
+            events: $eventStore.events,
+            selectedDate: selectedDate,
+            constellationVM: constellationVM
+          )
         } else {
           UrgencyPreferenceMatrixView(tasks: filteredEvents.map {
             MatrixTask(title: $0.title, urgency: $0.urgency, preference: $0.preference)
