@@ -11,6 +11,7 @@ struct HomeView: View {
   @ObservedObject var eventStore: EventStore
   @State private var selectedDate: Date = Date()
   @State private var selectedSection: HomeSection = .todo
+  @StateObject private var constellationVM = ConstellationViewModel()
 
   private var filteredEvents: [CalendarEvent] {
     eventStore.events.filter { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }
@@ -21,8 +22,8 @@ struct HomeView: View {
       VStack(spacing: 20) {
         dateNavigationBar
 
-        ConstellationBoardView(viewModel: ConstellationViewModel())
-
+        ConstellationBoardView(viewModel: constellationVM)
+        
         Picker("보기", selection: $selectedSection) {
           ForEach(HomeSection.allCases, id: \.self) { section in
             Text(section.rawValue).tag(section)
@@ -32,7 +33,7 @@ struct HomeView: View {
         .padding(.horizontal)
 
         if selectedSection == .todo {
-          ToDoListView(events: filteredEvents)
+          ToDoListView(events: filteredEvents, constellationVM: constellationVM)
         } else {
           UrgencyPreferenceMatrixView(tasks: filteredEvents.map {
             MatrixTask(title: $0.title, urgency: $0.urgency, preference: $0.preference)

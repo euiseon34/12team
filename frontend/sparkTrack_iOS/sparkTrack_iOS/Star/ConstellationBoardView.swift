@@ -25,10 +25,10 @@ struct ConstellationBoardView: View {
         ProgressGaugeBarView(currentScore: $viewModel.currentScore)
           .padding(.top, 20)
 
-        Button("점수 +15 (임시)") {
-          viewModel.addScore(15)
-        }
-        .buttonStyle(.borderedProminent)
+//        Button("점수 +15 (임시)") {
+//          viewModel.addScore(15)
+//        }
+//        .buttonStyle(.borderedProminent)
 
         Spacer()
       }
@@ -45,5 +45,5 @@ struct ConstellationBoardView: View {
 }
 
 #Preview {
-  ConstellationBoardView(viewModel: ConstellationViewModel())
+  BigDipperView(viewModel: ConstellationViewModel.shared)
 }

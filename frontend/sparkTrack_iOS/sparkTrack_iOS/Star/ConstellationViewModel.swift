@@ -15,6 +15,8 @@ struct ConstellationStar: Identifiable {
 }
 
 class ConstellationViewModel: ObservableObject {
+  static let shared = ConstellationViewModel()
+  
   @Published var score: Int = 0
   @Published var currentScore: Int = 0
   @Published var stars: [ConstellationStar]
