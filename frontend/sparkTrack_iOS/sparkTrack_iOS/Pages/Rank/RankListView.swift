@@ -62,6 +62,39 @@ struct RankListView: View {
   }
 }
 
-#Preview {
-  RankListView()
+#Preview("예시 미리보기") {
+  NavigationView {
+    RankListView_PreviewWrapper()
+  }
+}
+
+/// ✅ 서버 없이 미리보기용 Wrapper
+struct RankListView_PreviewWrapper: View {
+  @State private var dummyUsers: [RankUser] = [
+    RankUser(email: "star1@space.com", score: 920, rank: "diamond"),
+    RankUser(email: "sunny@space.com", score: 820, rank: "gold"),
+    RankUser(email: "breeze@space.com", score: 700, rank: "silver"),
+    RankUser(email: "moon@space.com", score: 610, rank: "bronze")
+  ]
+
+  var body: some View {
+    List(dummyUsers.indices, id: \.self) { index in
+      let user = dummyUsers[index]
+      HStack(spacing: 16) {
+        Image(user.rank)
+          .resizable()
+          .frame(width: 32, height: 32)
+
+        VStack(alignment: .leading) {
+          Text("\(index + 1)위: \(user.email)")
+            .font(.headline)
+          Text("점수: \(user.score)")
+            .font(.subheadline)
+        }
+        Spacer()
+      }
+      .padding(.vertical, 4)
+    }
+    .navigationTitle("🏆 전체 랭킹 (예시)")
+  }
 }
