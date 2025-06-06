@@ -5,6 +5,13 @@
 //  Created by 박서현 on 6/3/25.
 //
 
+//
+//  BigDipperView.swift
+//  sparkTrack_iOS
+//
+//  Created by 박서현 on 6/3/25.
+//
+
 import SwiftUI
 
 struct BigDipperView: View {
@@ -14,8 +21,8 @@ struct BigDipperView: View {
   var body: some View {
     ZStack {
       StarFieldView(starCount: 60)
-      
-      // ⭐️ 전체 연결 선 (희미한 밑그림)
+
+      // 🪄 전체 별자리 연결선 (희미한 배경선)
       if viewModel.stars.count > 1 {
         Path { path in
           path.move(to: viewModel.stars[0].position)
@@ -26,13 +33,13 @@ struct BigDipperView: View {
         .stroke(Color.white.opacity(0.3), lineWidth: 6)
       }
 
-      // ✨ 채워진 별들만 반짝이는 애니메이션 선
+      // ✨ 채워진 별들만 연결된 애니메이션 선
       if viewModel.stars.contains(where: { $0.isFilled }) {
         AnimatedConstellationLine(stars: viewModel.stars, animate: $animateGradient)
           .frame(width: 300, height: 300)
       }
 
-      // 🌟 별들
+      // 🌟 별 UI
       ForEach(viewModel.stars) { star in
         Circle()
           .fill(star.isFilled ? Color.yellow : Color.gray.opacity(0.4))
@@ -50,7 +57,6 @@ struct BigDipperView: View {
     }
   }
 }
-
 
 struct AnimatedConstellationLine: View {
   let stars: [ConstellationStar]
@@ -73,7 +79,6 @@ struct AnimatedConstellationLine: View {
       )
 
       Path { path in
-        // isFilled == true인 별들만 필터링
         let filledStars = stars.filter { $0.isFilled }
         if filledStars.count >= 2 {
           path.move(to: filledStars[0].position)
@@ -132,7 +137,9 @@ struct StarFieldView: View {
 }
 
 #Preview {
-    let viewModel = ConstellationViewModel()
-    viewModel.updateProgress(by: 300) // ⭐️ 3개 별 채움
-    return BigDipperView(viewModel: viewModel)
+  let viewModel = ConstellationViewModel.shared
+  viewModel.reset()
+  viewModel.addScore(300) // ✅ 3개 별 채우기
+
+  return BigDipperView(viewModel: viewModel)
 }
