@@ -94,16 +94,23 @@ struct CustomCalendarView: View {
   
   private var calendarHeader: some View {
     HStack {
-      Button(action: { changeMonth(-1) }) { Image(systemName: "chevron.left") }
+      Button(action: { changeMonth(-1) }) {
+        Image(systemName: "chevron.left")
+          .foregroundColor(.white) // ✅ 화살표도 흰색
+      }
       Spacer()
       Text(monthYearString(from: currentDate))
         .font(.title2)
-        .foregroundStyle(Color.white)
+        .foregroundColor(.white) // ✅ 월 텍스트 흰색
       Spacer()
-      Button(action: { changeMonth(1) }) { Image(systemName: "chevron.right") }
+      Button(action: { changeMonth(1) }) {
+        Image(systemName: "chevron.right")
+          .foregroundColor(.white) // ✅ 화살표도 흰색
+      }
     }
     .padding(.horizontal)
   }
+
   
   private var calendarDays: some View {
     LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7)) {
@@ -152,9 +159,10 @@ struct CustomCalendarView: View {
       // 날짜 텍스트
       Text("\(koreanCalendar.component(.day, from: date))")
         .font(.system(size: 16, weight: isSelected ? .bold : .regular))
+        .foregroundColor(.white) // ✅ 날짜 텍스트 흰색
         .frame(maxWidth: .infinity)
         .padding(8)
-        .background(isSelected ? Color.blue.opacity(0.3) : (isToday ? Color.yellow.opacity(0.2) : Color.clear))
+        .background(isSelected ? Color.blue.opacity(0.5) : (isToday ? Color.yellow.opacity(0.3) : Color.clear))
         .clipShape(Circle())
       
       // 일정 카테고리 별 색상 bar 표시
@@ -185,6 +193,7 @@ struct CustomCalendarView: View {
       VStack(alignment: .leading) {
         Text("📅 \(formattedDate(date)) 일정")
           .font(.headline)
+          .foregroundColor(.white)
         if eventsForSelectedDate.isEmpty {
           Text("등록된 일정이 없습니다.").foregroundColor(.gray)
         } else {

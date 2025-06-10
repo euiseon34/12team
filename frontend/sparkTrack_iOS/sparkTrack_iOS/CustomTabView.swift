@@ -21,7 +21,7 @@ struct CustomTabView: View {
   var body: some View {
     ZStack {
       Rectangle()
-        .frame(height: 100)
+        .frame(height: 95)
         .foregroundStyle(.white)
       
       VStack(spacing: 0){
