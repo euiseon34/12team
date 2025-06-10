@@ -129,54 +129,51 @@ struct DailyProgress: Identifiable {
 }
 
 struct MoonPhaseRingView: View {
-    var progress: Double // 0.0 ~ 1.0 (달 차는 정도)
-    @State private var isGlowing = false
-
-    var body: some View {
-        ZStack {
-            // 🌑 배경 원 (어두운 달 전체)
-            Circle()
-                .fill(Color.black.opacity(0.8))
-
-            // 🌕 달이 차는 부분
-            Circle()
-                .fill(Color.yellow.opacity(0.9))
-                .mask(
-                    Rectangle()
-                        .offset(x: CGFloat((1.0 - progress) * 150) - 75)
-                        .frame(width: CGFloat(progress) * 150)
-                )
-                .animation(.easeInOut(duration: 1.0), value: progress)
-
-            // 🌙 달 외곽선 (테두리 강조)
-            Circle()
-                .stroke(Color.yellow, lineWidth: 3)
-                .shadow(color: Color.yellow.opacity(0.5), radius: isGlowing ? 8 : 3)
-                .scaleEffect(isGlowing ? 1.02 : 1.0)
-                .animation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: isGlowing)
-
-            // 텍스트 중앙 표시
-            VStack(spacing: 4) {
-                Text("완료율")
-                    .font(.caption)
-                    .foregroundColor(.gray)
-                Text("\(Int(progress * 100))%")
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-            }
-        }
-        .frame(width: 150, height: 150)
-        .onAppear {
-            isGlowing = true
-        }
+  var progress: Double // 0.0 ~ 1.0 (달 위상)
+  @State private var isGlowing = false
+  
+  var body: some View {
+    ZStack {
+      // 🌑 전체 달 (검정색 배경)
+      Circle()
+        .fill(Color.black)
+      
+      // 🌕 밝아지는 노란색 영역 (왼쪽 → 오른쪽으로 차오름)
+      GeometryReader { geometry in
+        let width = geometry.size.width
+        Rectangle()
+          .fill(Color.yellow)
+          .frame(width: width * progress)
+          .alignmentGuide(.leading) { _ in 0 }
+          .offset(x: 0)
+          .animation(.easeInOut(duration: 1.0), value: progress)
+      }
+      .clipShape(Circle())
+      
+      // 🌙 외곽선
+      Circle()
+        .stroke(Color.yellow, lineWidth: 3)
+        .shadow(color: Color.yellow.opacity(0.5), radius: isGlowing ? 8 : 3)
+        .scaleEffect(isGlowing ? 1.02 : 1.0)
+        .animation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: isGlowing)
+      
+      // 텍스트 중앙
+      VStack(spacing: 4) {
+        Text("완료율")
+          .font(.caption)
+          .foregroundColor(.gray)
+        Text("\(Int(progress * 100))%")
+          .font(.title2)
+          .fontWeight(.semibold)
+          .foregroundColor(.white)
+      }
     }
+    .frame(width: 150, height: 150)
+    .onAppear {
+      isGlowing = true
+    }
+  }
 }
-
-#Preview {
-    MoonPhaseRingView(progress: 0.75) // 🌔 예시: 75% 채운 상태
-}
-
 
 //struct RingChartView: View {
 //  var progress: Double
