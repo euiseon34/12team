@@ -9,11 +9,11 @@ import SwiftUI
 
 struct CustomCalendarView: View {
   @ObservedObject var eventStore: EventStore
-
+  
   @State private var currentDate = Date()
   @State private var selectedDate: Date? = nil
   @State private var showEventForm = false
-
+  
   private var koreanCalendar: Calendar {
     var calendar = Calendar(identifier: .gregorian)
     calendar.locale = Locale(identifier: "ko_KR")
@@ -21,47 +21,46 @@ struct CustomCalendarView: View {
     calendar.firstWeekday = 2
     return calendar
   }
-
+  
   private var weekdaySymbols: [String] {
     let symbols = koreanCalendar.shortWeekdaySymbols
     return Array(symbols[1...]) + [symbols[0]]
   }
-
+  
   private var daysInMonth: [Date?] {
     guard let range = koreanCalendar.range(of: .day, in: .month, for: currentDate),
           let firstDayOfMonth = koreanCalendar.date(from: koreanCalendar.dateComponents([.year, .month], from: currentDate)) else {
       return []
     }
-
+    
     let weekday = koreanCalendar.component(.weekday, from: firstDayOfMonth)
     let adjustedWeekday = (weekday + 5) % 7
-
+    
     var dates: [Date?] = Array(repeating: nil, count: adjustedWeekday)
-
+    
     for day in range {
       var components = koreanCalendar.dateComponents([.year, .month], from: currentDate)
       components.day = day
       components.hour = 0
       components.minute = 0
       components.second = 0
-
+      
       if let date = koreanCalendar.date(from: components) {
         let fixed = koreanCalendar.startOfDay(for: date)
         dates.append(fixed)
       }
     }
-
+    
     return dates
   }
-
-
+  
   private var eventsForSelectedDate: [CalendarEvent] {
     guard let selectedDate else { return [] }
     return eventStore.events.filter {
       koreanCalendar.isDate($0.date, inSameDayAs: selectedDate)
     }
   }
-
+  
   var body: some View {
     VStack {
       calendarHeader
@@ -73,7 +72,7 @@ struct CustomCalendarView: View {
     }
     .sheet(isPresented: $showEventForm) {
       if let selectedDate {
-        EventFormView(selectedDate: .constant(selectedDate)) { title, description, category, start, end, urgency, preference in
+        EventFormView(selectedDate: .constant(selectedDate)) { title, description, category, start, end, urgency, preference, estimatedDuration, deadline in
           let newEvent = CalendarEvent(
             date: selectedDate,
             title: title,
@@ -81,27 +80,31 @@ struct CustomCalendarView: View {
             preference: preference,
             startTime: start,
             endTime: end,
-            isCompleted: false
+            isCompleted: false,
+            category: category,
+            estimatedDuration: estimatedDuration,
+            deadline: deadline
           )
           eventStore.events.append(newEvent)
-          saveEventsToUserDefaults() // ✅ 여기서 저장해주기!
+          saveEventsToUserDefaults()
         }
       }
     }
   }
-
+  
   private var calendarHeader: some View {
     HStack {
       Button(action: { changeMonth(-1) }) { Image(systemName: "chevron.left") }
       Spacer()
       Text(monthYearString(from: currentDate))
         .font(.title2)
+        .foregroundStyle(Color.white)
       Spacer()
       Button(action: { changeMonth(1) }) { Image(systemName: "chevron.right") }
     }
     .padding(.horizontal)
   }
-
+  
   private var calendarDays: some View {
     LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 7)) {
       ForEach(weekdaySymbols, id: \.self) {
@@ -109,11 +112,11 @@ struct CustomCalendarView: View {
           .font(.subheadline)
           .frame(maxWidth: .infinity)
       }
-
+      
       ForEach(daysInMonth.indices, id: \.self) { index in
         if let date = daysInMonth[index] {
           Button(action: {
-            selectedDate = koreanCalendar.startOfDay(for: date) // ✅ 날짜 시간 고정
+            selectedDate = koreanCalendar.startOfDay(for: date)
           }) {
             dayCell(for: date)
           }
@@ -125,24 +128,58 @@ struct CustomCalendarView: View {
     }
     .padding(.horizontal)
   }
-
-  private func dayCell(for date: Date) -> some View {
-    ZStack(alignment: .topTrailing) {
-      Text("\(koreanCalendar.component(.day, from: date))")
-        .padding(8)
-        .frame(maxWidth: .infinity)
-        .background(koreanCalendar.isDate(date, inSameDayAs: selectedDate ?? Date()) ? Color.blue.opacity(0.2) : Color.clear)
-        .clipShape(Circle())
-
-      if eventStore.events.contains(where: { koreanCalendar.isDate($0.date, inSameDayAs: date) }) {
-        Circle()
-          .fill(Color.red)
-          .frame(width: 6, height: 6)
-          .offset(x: 6, y: 2)
-      }
+  
+  private func color(for category: String) -> Color {
+    switch category {
+    case "공부": return Color.blue
+    case "운동": return Color.green
+    case "시험": return Color.red
+    case "업무": return Color.orange
+    case "약속": return Color.purple
+    case "여행": return Color.pink
+    case "기타": return Color.gray
+    default: return Color.gray
     }
   }
-
+  
+  private func dayCell(for date: Date) -> some View {
+    let isToday = koreanCalendar.isDateInToday(date)
+    let isSelected = koreanCalendar.isDate(date, inSameDayAs: selectedDate ?? Date())
+    
+    let dayEvents = eventStore.events.filter { koreanCalendar.isDate($0.date, inSameDayAs: date) }
+    
+    return VStack(spacing: 4) {
+      // 날짜 텍스트
+      Text("\(koreanCalendar.component(.day, from: date))")
+        .font(.system(size: 16, weight: isSelected ? .bold : .regular))
+        .frame(maxWidth: .infinity)
+        .padding(8)
+        .background(isSelected ? Color.blue.opacity(0.3) : (isToday ? Color.yellow.opacity(0.2) : Color.clear))
+        .clipShape(Circle())
+      
+      // 일정 카테고리 별 색상 bar 표시
+      VStack(spacing: 2) {
+        ForEach(Array(dayEvents.prefix(3)), id: \.id) { event in
+          Rectangle()
+            .fill(color(for: event.category))
+            .frame(height: 3)
+            .cornerRadius(1.5)
+        }
+        
+        if dayEvents.count > 3 {
+          Text("+\(dayEvents.count - 3)")
+            .font(.system(size: 10))
+            .foregroundColor(.gray)
+        }
+      }
+      .frame(maxHeight: 20)
+    }
+    .frame(height: 80)
+    .onTapGesture {
+      selectedDate = koreanCalendar.startOfDay(for: date)
+    }
+  }
+  
   private func eventsList(for date: Date) -> some View {
     ScrollView {
       VStack(alignment: .leading) {
@@ -174,11 +211,11 @@ struct CustomCalendarView: View {
       .padding()
     }
   }
-
+  
   private func changeMonth(_ offset: Int) {
     currentDate = koreanCalendar.date(byAdding: .month, value: offset, to: currentDate) ?? currentDate
   }
-
+  
   private func monthYearString(from date: Date) -> String {
     let formatter = DateFormatter()
     formatter.locale = Locale(identifier: "ko_KR")
@@ -186,7 +223,7 @@ struct CustomCalendarView: View {
     formatter.dateFormat = "yyyy년 M월"
     return formatter.string(from: date)
   }
-
+  
   private func formattedDate(_ date: Date) -> String {
     let formatter = DateFormatter()
     formatter.locale = Locale(identifier: "ko_KR")

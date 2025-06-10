@@ -14,10 +14,12 @@ struct EventRequest: Codable {
     let category: String
     let repeatEvent: Bool
     let completed: Bool
-    let priority: Int // 여기 바뀜
+    let priority: Int
     let preference: Int
-    let startTime: String   // ISO8601 형식 문자열
-    let endTime: String     // ISO8601 형식 문자열
+    let estimated_duration: Int
+    let startTime: String
+    let endTime: String
+    let deadline: String
 }
 
 struct SignupRequest: Codable {

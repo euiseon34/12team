@@ -38,7 +38,7 @@ struct TaskManagerView: View {
       }
     }
     .sheet(isPresented: $showEventForm) {
-      EventFormView(selectedDate: $selectedDate) { title, description, category, start, end, importance, preference  in
+      EventFormView(selectedDate: $selectedDate) { title, description, category, start, end, importance, preference, estimatedDuration, deadline in
         let newTask = MatrixTask(title: title, urgency: importance, preference: preference)
         tasks.append(newTask)
       }

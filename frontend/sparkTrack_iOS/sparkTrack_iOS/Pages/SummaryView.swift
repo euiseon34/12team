@@ -25,11 +25,12 @@ struct SummaryView: View {
 
     ScrollView {
       VStack(spacing: 32) {
-        Text("📊 To-Do 달성률 요약")
+        Text("📊 Summary")
           .font(.title2.bold())
+          .foregroundStyle(Color.white)
 
-        RingChartView(progress: Double(todayCompletion) / 100)
-
+        MoonPhaseRingView(progress: Double(todayCompletion) / 100.0)
+        
         VStack(spacing: 12) {
           Text("📅 비교 기준 날짜 선택")
             .font(.subheadline)
@@ -127,60 +128,108 @@ struct DailyProgress: Identifiable {
   let progress: Int
 }
 
-import SwiftUI
+struct MoonPhaseRingView: View {
+    var progress: Double // 0.0 ~ 1.0 (달 차는 정도)
+    @State private var isGlowing = false
 
-struct RingChartView: View {
-  var progress: Double
-  @State private var isGlowing = false
+    var body: some View {
+        ZStack {
+            // 🌑 배경 원 (어두운 달 전체)
+            Circle()
+                .fill(Color.black.opacity(0.8))
 
-  var body: some View {
-    ZStack {
-      Circle()
-        .stroke(Color.gray.opacity(0.15), lineWidth: 10)
+            // 🌕 달이 차는 부분
+            Circle()
+                .fill(Color.yellow.opacity(0.9))
+                .mask(
+                    Rectangle()
+                        .offset(x: CGFloat((1.0 - progress) * 150) - 75)
+                        .frame(width: CGFloat(progress) * 150)
+                )
+                .animation(.easeInOut(duration: 1.0), value: progress)
 
-      Circle()
-        .trim(from: 0, to: progress)
-        .stroke(
-          AngularGradient(
-            gradient: Gradient(colors: [
-              Color.yellow,
-              Color(hue: 0.12, saturation: 1.0, brightness: 1.0),
-              Color(hue: 0.13, saturation: 0.8, brightness: 0.95)
-            ]),
-            center: .center
-          ),
-          style: StrokeStyle(lineWidth: 10, lineCap: .round)
-        )
-        .rotationEffect(.degrees(-90))
-        .shadow(color: Color.yellow.opacity(0.6), radius: 10)
-        .shadow(color: Color.white.opacity(0.3), radius: 4)
-        .scaleEffect(isGlowing ? 1.04 : 1.0)
-        .opacity(isGlowing ? 1.0 : 0.9)
-        .animation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: isGlowing)
-        .onAppear {
-          isGlowing = true
+            // 🌙 달 외곽선 (테두리 강조)
+            Circle()
+                .stroke(Color.yellow, lineWidth: 3)
+                .shadow(color: Color.yellow.opacity(0.5), radius: isGlowing ? 8 : 3)
+                .scaleEffect(isGlowing ? 1.02 : 1.0)
+                .animation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: isGlowing)
+
+            // 텍스트 중앙 표시
+            VStack(spacing: 4) {
+                Text("완료율")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                Text("\(Int(progress * 100))%")
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+            }
         }
-
-      VStack(spacing: 4) {
-        Text("완료율")
-          .font(.caption)
-          .foregroundColor(.gray)
-        Text("\(Int(progress * 100))%")
-          .font(.title2)
-          .fontWeight(.semibold)
-          .foregroundColor(.primary)
-      }
+        .frame(width: 150, height: 150)
+        .onAppear {
+            isGlowing = true
+        }
     }
-    .frame(width: 150, height: 150)
-    .padding()
-  }
 }
+
+#Preview {
+    MoonPhaseRingView(progress: 0.75) // 🌔 예시: 75% 채운 상태
+}
+
+
+//struct RingChartView: View {
+//  var progress: Double
+//  @State private var isGlowing = false
+//
+//  var body: some View {
+//    ZStack {
+//      Circle()
+//        .stroke(Color.gray.opacity(0.15), lineWidth: 10)
+//
+//      Circle()
+//        .trim(from: 0, to: progress)
+//        .stroke(
+//          AngularGradient(
+//            gradient: Gradient(colors: [
+//              Color.yellow,
+//              Color(hue: 0.12, saturation: 1.0, brightness: 1.0),
+//              Color(hue: 0.13, saturation: 0.8, brightness: 0.95)
+//            ]),
+//            center: .center
+//          ),
+//          style: StrokeStyle(lineWidth: 10, lineCap: .round)
+//        )
+//        .rotationEffect(.degrees(-90))
+//        .shadow(color: Color.yellow.opacity(0.6), radius: 10)
+//        .shadow(color: Color.white.opacity(0.3), radius: 4)
+//        .scaleEffect(isGlowing ? 1.04 : 1.0)
+//        .opacity(isGlowing ? 1.0 : 0.9)
+//        .animation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: isGlowing)
+//        .onAppear {
+//          isGlowing = true
+//        }
+//
+//      VStack(spacing: 4) {
+//        Text("완료율")
+//          .font(.caption)
+//          .foregroundColor(.gray)
+//        Text("\(Int(progress * 100))%")
+//          .font(.title2)
+//          .fontWeight(.semibold)
+//          .foregroundColor(.primary)
+//      }
+//    }
+//    .frame(width: 150, height: 150)
+//    .padding()
+//  }
+//}
 
 #Preview {
   SummaryView(
     allEvents: [
-      CalendarEvent(date: Date(), title: "오늘 할 일", urgency: 3, preference: 4, startTime: Date(), endTime: Date(), isCompleted: true, completionRate: 80),
-      CalendarEvent(date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!, title: "어제 할 일", urgency: 3, preference: 4, startTime: Date(), endTime: Date(), isCompleted: true, completionRate: 60)
+      CalendarEvent(date: Date(), title: "오늘 할 일", urgency: 3, preference: 4, startTime: Date(), endTime: Date(), isCompleted: true, completionRate: 80, category: "공부"),
+      CalendarEvent(date: Calendar.current.date(byAdding: .day, value: -1, to: Date())!, title: "어제 할 일", urgency: 3, preference: 4, startTime: Date(), endTime: Date(), isCompleted: true, completionRate: 60, category: "공부")
     ]
   )
 }

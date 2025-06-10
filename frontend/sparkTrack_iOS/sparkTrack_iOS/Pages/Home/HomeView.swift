@@ -23,6 +23,7 @@ struct HomeView: View {
         dateNavigationBar
 
         ConstellationBoardView(viewModel: constellationVM)
+          .padding(.top, 20)
         
         Picker("보기", selection: $selectedSection) {
           ForEach(HomeSection.allCases, id: \.self) { section in
@@ -48,6 +49,7 @@ struct HomeView: View {
           .frame(height: 80) // ✅ 탭바에 가려지지 않도록 하단 여백 추가
       }
       .padding(.top, 30)
+      .padding(.horizontal, 16) // ✅ 양옆 여백 추가
     }
   }
 
@@ -63,6 +65,7 @@ struct HomeView: View {
 
       Text(formattedDate(selectedDate))
         .font(.title2)
+        .foregroundStyle(Color.white)
 
       Spacer()
 

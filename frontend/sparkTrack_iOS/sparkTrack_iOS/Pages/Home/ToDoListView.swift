@@ -30,6 +30,7 @@ struct ToDoListView: View {
     VStack(alignment: .leading, spacing: 16) {
       Text("📝 To-Do List")
         .font(.title3)
+        .foregroundStyle(Color.white)
         .bold()
         .padding(.leading)
 
@@ -232,7 +233,8 @@ extension CalendarEvent {
       preference: 5,
       startTime: Date(),
       endTime: Calendar.current.date(byAdding: .hour, value: 1, to: Date()),
-      isCompleted: false
+      isCompleted: false,
+      category: "공부"
     )
   ]) { $events in
     ToDoListView(
