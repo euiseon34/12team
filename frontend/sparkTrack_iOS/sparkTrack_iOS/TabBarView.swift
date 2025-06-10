@@ -21,34 +21,41 @@ struct TabBarView: View {
   
   var body: some View {
     GeometryReader { geometry in
-      ZStack(alignment: .bottom) {
-        VStack(spacing: 0) {
-          switch selectedTab {
-          case .timeboard:
-            ScheduleBoardView()
-              .padding(.top, 60)
-              .ignoresSafeArea()
-          case .calendar:
-            CalendarView(eventStore: eventStore)
-              .ignoresSafeArea()
-          case .home:
-            HomeView(eventStore: eventStore)
-              .ignoresSafeArea()
-          case .summary:
-            SummaryView(
+      ZStack {
+        Image("backgroundcolor")
+          .resizable()
+          .ignoresSafeArea()
+          .opacity(0.9)
+        
+        ZStack(alignment: .bottom) {
+          VStack(spacing: 0) {
+            switch selectedTab {
+            case .timeboard:
+              ScheduleBoardView()
+                .padding(.top, 60)
+                .ignoresSafeArea()
+            case .calendar:
+              CalendarView(eventStore: eventStore)
+                .ignoresSafeArea()
+            case .home:
+              HomeView(eventStore: eventStore)
+                .ignoresSafeArea()
+            case .summary:
+              SummaryView(
                 allEvents: loadToDoEvents()
               )
               .padding(.top, 50)
               .ignoresSafeArea()
-          case .user:
-            UserPageView()
-              .ignoresSafeArea()
+            case .user:
+              UserPageView()
+                .ignoresSafeArea()
+            }
           }
+          .frame(width: geometry.size.width, height: geometry.size.height)
+          
+          CustomTabView(selectedTab: $selectedTab)
+            .frame(maxWidth: .infinity)
         }
-        .frame(width: geometry.size.width, height: geometry.size.height)
-        
-        CustomTabView(selectedTab: $selectedTab)
-          .frame(maxWidth: .infinity)
       }
     }
     .edgesIgnoringSafeArea(.bottom)
@@ -62,7 +69,6 @@ func loadToDoEvents() -> [CalendarEvent] {
   }
   return []
 }
-
 
 #Preview {
   TabBarView()
