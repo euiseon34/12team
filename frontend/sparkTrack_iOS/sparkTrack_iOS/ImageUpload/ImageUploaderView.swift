@@ -34,6 +34,13 @@ struct ImageUploaderView: View {
           .foregroundColor(.white)
           .cornerRadius(10)
       }
+      .onTapGesture {
+        checkPhotoLibraryAuthorization { granted in
+          if !granted {
+            uploadMessage = "⚠️ 사진 접근 권한이 필요합니다.\n설정에서 권한을 허용해주세요."
+          }
+        }
+      }
       .onChange(of: selectedItem) { newItem in
         Task {
           guard let item = newItem else { return }
@@ -97,6 +104,25 @@ struct ImageUploaderView: View {
       }
     }
   }
+}
+
+import Photos
+
+func checkPhotoLibraryAuthorization(completion: @escaping (Bool) -> Void) {
+    let status = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+    
+    switch status {
+    case .authorized, .limited:
+        completion(true)
+    case .notDetermined:
+        PHPhotoLibrary.requestAuthorization(for: .readWrite) { newStatus in
+            DispatchQueue.main.async {
+                completion(newStatus == .authorized || newStatus == .limited)
+            }
+        }
+    default:
+        completion(false)
+    }
 }
 
 #Preview {
