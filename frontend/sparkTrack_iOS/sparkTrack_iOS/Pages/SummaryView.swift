@@ -34,6 +34,7 @@ struct SummaryView: View {
         VStack(spacing: 12) {
           Text("📅 비교 기준 날짜 선택")
             .font(.subheadline)
+            .foregroundStyle(Color.white)
 
           DatePicker("", selection: $comparisonDate, displayedComponents: .date)
             .datePickerStyle(.compact)
@@ -43,6 +44,7 @@ struct SummaryView: View {
             VStack {
               Text("오늘")
                 .font(.caption)
+                .foregroundStyle(Color.white)
               Text("\(todayCompletion)%")
                 .font(.title3)
                 .foregroundColor(.blue)
@@ -51,6 +53,7 @@ struct SummaryView: View {
             VStack {
               Text(formattedDate(comparisonDate))
                 .font(.caption)
+                .foregroundStyle(Color.white)
               Text("\(pastCompletion)%")
                 .font(.title3)
                 .foregroundColor(.gray)
@@ -60,10 +63,12 @@ struct SummaryView: View {
           HStack(spacing: 4) {
             Text("변화:")
               .font(.caption)
+              .foregroundStyle(Color.white)
             Text(diffSymbol)
               .foregroundColor(difference > 0 ? .green : difference < 0 ? .red : .gray)
             Text("\(abs(difference))%")
               .font(.caption.bold())
+              .foregroundStyle(Color.white)
           }
         }
 
@@ -72,6 +77,7 @@ struct SummaryView: View {
         VStack(alignment: .leading, spacing: 8) {
           Text("📈 최근 7일간 평균 달성도")
             .font(.subheadline)
+            .foregroundStyle(Color.white)
 
           Chart(getWeeklyData()) { data in
             BarMark(
