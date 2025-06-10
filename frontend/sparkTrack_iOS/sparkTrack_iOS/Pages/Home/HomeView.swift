@@ -12,16 +12,38 @@ struct HomeView: View {
   @State private var selectedDate: Date = Date()
   @State private var selectedSection: HomeSection = .todo
   @StateObject private var constellationVM = ConstellationViewModel()
-
+  
+  // ⭐️ 별자리 도감 sheet 표시 여부 상태 추가
+  @State private var showConstellationDex = false
+  
   private var filteredEvents: [CalendarEvent] {
     eventStore.events.filter { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }
   }
-
+  
   var body: some View {
     ScrollView {
       VStack(spacing: 20) {
         dateNavigationBar
-
+        
+        // ⭐️ 별자리 도감 버튼 추가
+        Button(action: {
+          showConstellationDex = true
+        }) {
+          HStack {
+            Image(systemName: "book.fill")
+              .font(.title3)
+            Text("별자리 도감 보기")
+              .font(.headline)
+          }
+          .padding()
+          .frame(maxWidth: .infinity)
+          .background(Color.blue.opacity(0.8))
+          .foregroundColor(.white)
+          .cornerRadius(12)
+          .shadow(radius: 5)
+        }
+        .padding(.horizontal)
+        
         ConstellationBoardView(viewModel: constellationVM)
           .padding(.top, 20)
         
@@ -32,7 +54,7 @@ struct HomeView: View {
         }
         .pickerStyle(.segmented)
         .padding(.horizontal)
-
+        
         if selectedSection == .todo {
           ToDoListView(
             events: $eventStore.events,
@@ -44,15 +66,19 @@ struct HomeView: View {
             MatrixTask(title: $0.title, urgency: $0.urgency, preference: $0.preference)
           })
         }
-
+        
         Spacer()
           .frame(height: 80) // ✅ 탭바에 가려지지 않도록 하단 여백 추가
       }
       .padding(.top, 30)
       .padding(.horizontal, 16) // ✅ 양옆 여백 추가
     }
+    // ⭐️ 별자리 도감 sheet 연결
+    .sheet(isPresented: $showConstellationDex) {
+      ConstellationDexView()
+    }
   }
-
+  
   private var dateNavigationBar: some View {
     HStack {
       Button(action: {
@@ -60,15 +86,15 @@ struct HomeView: View {
       }) {
         Image(systemName: "chevron.left")
       }
-
+      
       Spacer()
-
+      
       Text(formattedDate(selectedDate))
         .font(.title2)
         .foregroundStyle(Color.white)
-
+      
       Spacer()
-
+      
       Button(action: {
         selectedDate = Calendar.current.date(byAdding: .day, value: 1, to: selectedDate) ?? selectedDate
       }) {
@@ -78,7 +104,7 @@ struct HomeView: View {
     .padding(.horizontal)
     .padding(.top, 50)
   }
-
+  
   private func formattedDate(_ date: Date) -> String {
     let formatter = DateFormatter()
     formatter.locale = Locale(identifier: "ko_KR")
