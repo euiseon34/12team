@@ -40,15 +40,14 @@ class ConstellationViewModel: ObservableObject {
   init() {
     // 북두칠성 7개 국자 모양 배치
     self.stars = [
-      ConstellationStar(position: CGPoint(x: 50, y: 100), isFilled: false),
-      ConstellationStar(position: CGPoint(x: 80, y: 120), isFilled: false),
-      ConstellationStar(position: CGPoint(x: 110, y: 120), isFilled: false),
-      ConstellationStar(position: CGPoint(x: 140, y: 70), isFilled: false),
-      ConstellationStar(position: CGPoint(x: 180, y: 90), isFilled: false),
-      ConstellationStar(position: CGPoint(x: 210, y: 120), isFilled: false),
-      ConstellationStar(position: CGPoint(x: 250, y: 120), isFilled: false)
+      ConstellationStar(position: CGPoint(x: 50, y: 150), isFilled: true),
+      ConstellationStar(position: CGPoint(x: 80, y: 170), isFilled: true),
+      ConstellationStar(position: CGPoint(x: 110, y: 170), isFilled: true),
+      ConstellationStar(position: CGPoint(x: 140, y: 120), isFilled: false), // 원래 70 → 120
+      ConstellationStar(position: CGPoint(x: 180, y: 140), isFilled: false),
+      ConstellationStar(position: CGPoint(x: 210, y: 170), isFilled: false),
+      ConstellationStar(position: CGPoint(x: 250, y: 170), isFilled: false)
     ]
-
     restoreFilledStars()
   }
 
