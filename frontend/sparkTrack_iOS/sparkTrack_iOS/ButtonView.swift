@@ -18,11 +18,11 @@ struct ButtonView: View {
           .resizable()
           .scaledToFill()
           .frame(width: 30, height: 30)
-          .foregroundStyle(isSelected ? Color.yellow : Color.black)
+          .foregroundStyle(isSelected ? Color.yellow : Color.white)
 //          .padding(.bottom, 5)
         Text(title)
           .font(.body)
-          .foregroundStyle(isSelected ? Color.yellow : Color.black)
+          .foregroundStyle(isSelected ? Color.yellow : Color.white)
           .padding(.bottom, 22)
       }
     }

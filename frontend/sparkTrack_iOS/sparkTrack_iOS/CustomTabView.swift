@@ -22,11 +22,12 @@ struct CustomTabView: View {
     ZStack {
       Rectangle()
         .frame(height: 95)
-        .foregroundStyle(.white)
+        .foregroundStyle(Color("tabbar"))
+        .opacity(0.9)
       
-      VStack(spacing: 0){
-        Rectangle()
-          .frame(height: 4)
+      VStack(spacing: 10){
+//        Rectangle()
+//          .frame(height: 4)
         
         Spacer()
         HStack {
