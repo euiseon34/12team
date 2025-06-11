@@ -11,11 +11,12 @@ import SwiftUI
 struct sparkTrack_iOSApp: App {
   var body: some Scene {
     WindowGroup {
-      if SessionManager.shared.isLoggedIn {
-        TabBarView()
-      } else {
-        LoginView()
-      }
+//      if SessionManager.shared.isLoggedIn {
+//        TabBarView()
+//      } else {
+//        LoginView()
+//      }
+      TabBarView()
     }
   }
 }
