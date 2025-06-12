@@ -13,15 +13,15 @@ struct HomeView: View {
   @State private var selectedSection: HomeSection = .todo
   @StateObject private var constellationVM = ConstellationViewModel()
 
-  // ⭐️ 별자리 도감 sheet 표시 여부 상태 추가
   @State private var showConstellationDex = false
+  @State private var showEventForm = false
 
   private var filteredEvents: [CalendarEvent] {
     eventStore.events.filter { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }
   }
 
   var body: some View {
-    ZStack {
+    ZStack(alignment: .bottomTrailing) {
       ScrollView {
         VStack(spacing: 20) {
           dateNavigationBar
@@ -53,36 +53,70 @@ struct HomeView: View {
             .frame(height: 80) // ✅ 탭바에 가려지지 않도록 하단 여백 추가
         }
         .padding(.top, 30)
-        .padding(.horizontal, 16) // ✅ 양옆 여백 추가
+        .padding(.horizontal, 16)
       }
 
-      // ⭐️ 플로팅 버튼
-      VStack {
-        Spacer()
-        HStack {
-          Spacer()
-          Button(action: {
-            showConstellationDex = true
-          }) {
-            ZStack {
-              Circle()
-                .fill(Color.yellow)
-                .frame(width: 60, height: 60)
-                .shadow(radius: 5)
+      // ⭐️ 우측 하단 버튼들 (도감 + 일정 추가)
+      VStack(alignment: .trailing, spacing: 16) {
+        // ⭐️ 별자리 도감 버튼
+        Button(action: {
+          showConstellationDex = true
+        }) {
+          Image(systemName: "book.fill")
+            .font(.title2)
+            .frame(width: 60, height: 60)
+            .background(Color.accentColor)
+            .foregroundColor(.white)
+            .clipShape(Circle())
+            .shadow(radius: 5)
+        }
 
-              Image(systemName: "book.fill")
-                .foregroundColor(.black)
-                .font(.title2)
-            }
-          }
-          .padding()
-          .padding(.bottom, 100)
+        // ⭐️ 일정 추가 버튼
+        Button(action: {
+          showEventForm = true
+        }) {
+          Image(systemName: "plus")
+            .font(.title2)
+            .frame(width: 60, height: 60)
+            .background(Color.accentColor)
+            .foregroundColor(.white)
+            .clipShape(Circle())
+            .shadow(radius: 5)
         }
       }
+      .padding()
+      .padding(.bottom, 100)
     }
+
     // ⭐️ 별자리 도감 sheet 연결
     .sheet(isPresented: $showConstellationDex) {
       ConstellationDexView()
+    }
+
+    // ⭐️ 일정 추가 EventFormView 연결
+    .sheet(isPresented: $showEventForm) {
+      EventFormView(selectedDate: $selectedDate) { title, description, category, start, end, urgency, preference, estimatedDuration, deadline in
+        // ⭐️ 저장 시 CalendarEvent 생성 후 eventStore.events에 추가
+        let newEvent = CalendarEvent(
+          date: selectedDate,
+          title: title,
+          urgency: urgency,
+          preference: preference,
+          startTime: start,
+          endTime: end,
+          isCompleted: false,
+          category: category,
+          estimatedDuration: estimatedDuration,
+          deadline: deadline
+        )
+        eventStore.events.append(newEvent)
+
+        // ✅ UserDefaults에도 저장
+        if let data = try? JSONEncoder().encode(eventStore.events) {
+          UserDefaults.standard.set(data, forKey: "savedToDoEvents")
+          print("💾 [UserDefaults] HomeView → 이벤트 저장 완료 (\(eventStore.events.count)개)")
+        }
+      }
     }
   }
 
