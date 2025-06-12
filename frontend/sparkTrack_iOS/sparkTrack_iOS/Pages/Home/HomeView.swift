@@ -23,7 +23,7 @@ struct HomeView: View {
   var body: some View {
     ZStack(alignment: .bottomTrailing) {
       ScrollView {
-        VStack(spacing: 20) {
+        VStack(spacing: 16) {
           dateNavigationBar
 
           ConstellationBoardView(viewModel: constellationVM)
@@ -126,6 +126,7 @@ struct HomeView: View {
         selectedDate = Calendar.current.date(byAdding: .day, value: -1, to: selectedDate) ?? selectedDate
       }) {
         Image(systemName: "chevron.left")
+          .foregroundStyle(Color.white)
       }
 
       Spacer()
@@ -140,10 +141,11 @@ struct HomeView: View {
         selectedDate = Calendar.current.date(byAdding: .day, value: 1, to: selectedDate) ?? selectedDate
       }) {
         Image(systemName: "chevron.right")
+          .foregroundStyle(Color.white)
       }
     }
     .padding(.horizontal)
-    .padding(.top, 50)
+    .padding(.top, 45)
   }
 
   private func formattedDate(_ date: Date) -> String {

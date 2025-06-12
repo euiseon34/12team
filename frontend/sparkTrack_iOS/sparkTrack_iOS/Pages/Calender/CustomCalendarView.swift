@@ -72,6 +72,7 @@ struct CustomCalendarView: View {
         // ✅ Calendar Days
         calendarDays
           .padding(.horizontal)
+          .foregroundStyle(.white)
         
         Divider()
           .padding(.horizontal)
