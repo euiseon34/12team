@@ -23,6 +23,7 @@ struct GridTimeTableView: View {
           ForEach(weekdays, id: \.self) { day in
             Text(day)
               .font(.caption)
+              .foregroundStyle(.white)
               .frame(maxWidth: .infinity)
               .frame(height: 30)
               .background(Color.gray.opacity(0.2))
@@ -35,6 +36,7 @@ struct GridTimeTableView: View {
               HStack(spacing: 1) {
                 Text(String(format: "%02d:00", hour))
                   .font(.caption2)
+                  .foregroundStyle(.white)
                   .frame(width: 40, height: hourHeight, alignment: .top)
                 ForEach(weekdays, id: \.self) { _ in
                   Rectangle()
@@ -57,11 +59,11 @@ struct GridTimeTableView: View {
                   .fontWeight(.semibold)
                 Text("\(entry.startTime)~\(entry.endTime)")
                   .font(.caption2)
-                  .foregroundColor(.gray)
+//                  .foregroundColor(.gray)
               }
               .padding(4)
               .frame(width: blockWidth, height: height)
-              .background(Color.blue.opacity(0.2))
+              .background(Color.yellow.opacity(0.8))
               .cornerRadius(6)
               .position(
                 x: 40 + blockWidth * CGFloat(xIndex) + blockWidth / 2,
