@@ -62,21 +62,39 @@ struct CustomCalendarView: View {
   }
   
   var body: some View {
-    VStack {
-      calendarHeader
-      calendarDays
-      Divider()
-      if let selectedDate {
-        eventsList(for: selectedDate)
+    ScrollView {
+      VStack(alignment: .leading, spacing: 12) {
+        // ✅ Calendar Header
+        calendarHeader
+          .padding(.top)
+          .padding(.horizontal)
+        
+        // ✅ Calendar Days
+        calendarDays
+          .padding(.horizontal)
+        
+        Divider()
+          .padding(.horizontal)
+          .padding(.top, 8)
+        
+        // ✅ Events List
+        if let selectedDate {
+          eventsList(for: selectedDate)
+            .padding(.horizontal)
+            .padding(.bottom, 16)
+        }
       }
+      .padding(.bottom, 16)
     }
     .sheet(isPresented: $showEventForm) {
       if let selectedDate {
-        EventFormView(selectedDate: .constant(selectedDate)) { title, description, category, start, end, urgency, preference, estimatedDuration, deadline in
+        EventFormView(selectedDate: .constant(selectedDate)) { title, description, category, start, end, importance, preference, estimatedDuration, deadline in
+          
+          // 여기서 실제 CalendarEvent 추가
           let newEvent = CalendarEvent(
             date: selectedDate,
             title: title,
-            urgency: urgency,
+            urgency: importance,
             preference: preference,
             startTime: start,
             endTime: end,
@@ -85,12 +103,14 @@ struct CustomCalendarView: View {
             estimatedDuration: estimatedDuration,
             deadline: deadline
           )
+          
           eventStore.events.append(newEvent)
           saveEventsToUserDefaults()
         }
       }
     }
   }
+
   
   private var calendarHeader: some View {
     HStack {
@@ -190,36 +210,68 @@ struct CustomCalendarView: View {
   
   private func eventsList(for date: Date) -> some View {
     ScrollView {
-      VStack(alignment: .leading) {
+      VStack(alignment: .leading, spacing: 12) {
         Text("📅 \(formattedDate(date)) 일정")
           .font(.headline)
           .foregroundColor(.white)
+
         if eventsForSelectedDate.isEmpty {
-          Text("등록된 일정이 없습니다.").foregroundColor(.gray)
+          Text("등록된 일정이 없습니다.")
+            .foregroundColor(.gray)
         } else {
           ForEach(eventsForSelectedDate) { event in
             HStack {
-              Text("• \(event.title)")
+              VStack(alignment: .leading, spacing: 4) {
+                Text(event.title)
+                  .font(.body)
+                  .fontWeight(.medium)
+                  .foregroundColor(.white)
+
+                // 만약 카테고리도 넣고 싶으면 추가 표시 가능
+                Text(event.category)
+                  .font(.caption)
+                  .foregroundColor(.gray)
+              }
+
               Spacer()
+
               Button(role: .destructive) {
                 eventStore.events.removeAll { $0.id == event.id }
               } label: {
                 Image(systemName: "trash")
+                  .foregroundColor(.red)
               }
             }
-            .padding(.vertical, 2)
+            .padding(12)
+            .background(Color.white.opacity(0.05))
+            .cornerRadius(10)
+            .overlay(
+              RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.white.opacity(0.1), lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.3), radius: 3, x: 0, y: 2)
           }
         }
+
+        // 일정 추가 버튼
         Button {
           showEventForm = true
         } label: {
           Label("일정 추가", systemImage: "plus.circle")
+            .font(.body)
+            .fontWeight(.bold)
+            .foregroundColor(.white)
+            .padding(12)
+            .frame(maxWidth: .infinity)
+            .background(Color.blue.opacity(0.7))
+            .cornerRadius(10)
         }
         .padding(.top, 8)
       }
       .padding()
     }
   }
+
   
   private func changeMonth(_ offset: Int) {
     currentDate = koreanCalendar.date(byAdding: .month, value: offset, to: currentDate) ?? currentDate

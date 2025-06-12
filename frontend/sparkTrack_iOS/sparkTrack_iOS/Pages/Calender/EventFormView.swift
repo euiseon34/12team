@@ -31,7 +31,7 @@ struct EventFormView: View {
   @State private var importance: Int = 3
   @State private var preference: Int = 3
   @State private var repeatEvent: Bool = false
-  @State private var estimatedDuration: Int = 30 // 기본 30분
+  @State private var estimatedDuration: Int = 30
   @State private var deadlineDate: Date = Date()
   @State private var showAlert = false
   @State private var alertMessage = ""
@@ -50,8 +50,26 @@ struct EventFormView: View {
         }
         
         Section(header: Text("카테고리")) {
+          // 현재 선택된 카테고리 표시
+          HStack {
+            Circle()
+              .fill(color(for: selectedCategory))
+              .frame(width: 12, height: 12)
+            Text(selectedCategory)
+              .font(.body)
+              .fontWeight(.medium)
+          }
+          
+          // 카테고리 선택 Picker
           Picker("카테고리 선택", selection: $selectedCategory) {
-            ForEach(categories, id: \.self) { Text($0) }
+            ForEach(categories, id: \.self) { category in
+              HStack {
+                Circle()
+                  .fill(color(for: category))
+                  .frame(width: 12, height: 12)
+                Text(category)
+              }
+            }
           }
           .pickerStyle(.menu)
         }
@@ -161,7 +179,6 @@ struct EventFormView: View {
       }
     }
     
-    // onSave 호출에 추가 필드도 넘김
     onSave(title, description, selectedCategory, realStart, realEnd, importance, preference, estimatedDuration, deadlineDate)
     dismiss()
   }
@@ -178,6 +195,19 @@ struct EventFormView: View {
     combined.minute = timeComp.minute
     combined.second = timeComp.second
     return cal.date(from: combined)!
+  }
+  
+  private func color(for category: String) -> Color {
+    switch category {
+    case "공부": return Color.blue
+    case "운동": return Color.green
+    case "시험": return Color.red
+    case "업무": return Color.orange
+    case "약속": return Color.purple
+    case "여행": return Color.pink
+    case "기타": return Color.gray
+    default: return Color.gray
+    }
   }
 }
 
