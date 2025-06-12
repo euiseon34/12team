@@ -74,6 +74,21 @@ struct SummaryView: View {
 
         Divider()
 
+        // ⭐️ 피드백 영역 추가
+        VStack(alignment: .leading, spacing: 8) {
+          Text("📝 피드백")
+            .font(.subheadline)
+            .foregroundStyle(Color.white)
+
+          ForEach(feedbackTexts, id: \.self) { line in
+            Text("• \(line)")
+              .font(.footnote)
+              .foregroundStyle(Color.white)
+          }
+        }
+
+        Divider()
+
         VStack(alignment: .leading, spacing: 8) {
           Text("📈 최근 7일간 평균 달성도")
             .font(.subheadline)
@@ -87,10 +102,24 @@ struct SummaryView: View {
             .foregroundStyle(.orange)
           }
           .chartYScale(domain: 0...100)
+          .chartXAxis {
+            AxisMarks { value in
+              AxisGridLine().foregroundStyle(Color.gray.opacity(0.3))
+              AxisTick().foregroundStyle(Color.gray.opacity(0.5))
+              AxisValueLabel().foregroundStyle(Color.white)
+            }
+          }
+          .chartYAxis {
+            AxisMarks { value in
+              AxisGridLine().foregroundStyle(Color.gray.opacity(0.3))
+              AxisTick().foregroundStyle(Color.gray.opacity(0.5))
+              AxisValueLabel().foregroundStyle(Color.white)
+            }
+          }
           .frame(height: 180)
         }
 
-        Spacer(minLength: 40) // 스크롤 하단 여유 공간
+        Spacer(minLength: 100)
       }
       .padding()
     }
@@ -107,6 +136,13 @@ struct SummaryView: View {
     guard !events.isEmpty else { return 0 }
     let total = events.map { $0.completionRate }.reduce(0, +)
     return total / events.count
+  }
+
+  private func completionRate(for events: [CalendarEvent], category: String) -> Int {
+    let filtered = events.filter { $0.category == category }
+    guard !filtered.isEmpty else { return 0 }
+    let total = filtered.map { $0.completionRate }.reduce(0, +)
+    return total / filtered.count
   }
 
   private func formattedDate(_ date: Date) -> String {
@@ -126,6 +162,46 @@ struct SummaryView: View {
       return DailyProgress(date: date, progress: average)
     }
   }
+
+  // ⭐️ AI 피드백 텍스트 생성
+  private var feedbackTexts: [String] {
+    let todayEvents = events(on: Date())
+    let pastEvents = events(on: comparisonDate)
+
+    let todayCompletion = completionRate(for: todayEvents)
+    let pastCompletion = completionRate(for: pastEvents)
+
+    var feedback: [String] = []
+
+    if todayCompletion > pastCompletion {
+      feedback.append("전체 달성도가 \(todayCompletion - pastCompletion)% 상승했어요. 멋져요! 🚀")
+    } else if todayCompletion < pastCompletion {
+      feedback.append("전체 달성도가 \(pastCompletion - todayCompletion)% 감소했어요. 다시 힘내봐요! 🌱")
+    } else {
+      feedback.append("전체 달성도는 변동이 없어요. 꾸준히 유지 중이에요. ✨")
+    }
+
+    let categories = Set(todayEvents.map { $0.category } + pastEvents.map { $0.category })
+
+    let categoryDiffs = categories.map { category -> (String, Int) in
+      let todayRate = completionRate(for: todayEvents, category: category)
+      let pastRate = completionRate(for: pastEvents, category: category)
+      return (category, todayRate - pastRate)
+    }
+
+    if let mostChanged = categoryDiffs.max(by: { abs($0.1) < abs($1.1) }) {
+      let (category, diff) = mostChanged
+      if diff > 0 {
+        feedback.append("'\(category)' 카테고리에서 \(diff)% 향상되었어요. 👍")
+      } else if diff < 0 {
+        feedback.append("'\(category)' 카테고리에서 \(abs(diff))% 감소했어요. 조금 더 집중해볼까요? 💪")
+      } else {
+        feedback.append("'\(category)' 카테고리는 변화가 없어요. 🎈")
+      }
+    }
+
+    return feedback
+  }
 }
 
 struct DailyProgress: Identifiable {
@@ -135,16 +211,14 @@ struct DailyProgress: Identifiable {
 }
 
 struct MoonPhaseRingView: View {
-  var progress: Double // 0.0 ~ 1.0 (달 위상)
+  var progress: Double
   @State private var isGlowing = false
   
   var body: some View {
     ZStack {
-      // 🌑 전체 달 (검정색 배경)
       Circle()
         .fill(Color.black)
       
-      // 🌕 밝아지는 노란색 영역 (왼쪽 → 오른쪽으로 차오름)
       GeometryReader { geometry in
         let width = geometry.size.width
         Rectangle()
@@ -156,14 +230,12 @@ struct MoonPhaseRingView: View {
       }
       .clipShape(Circle())
       
-      // 🌙 외곽선
       Circle()
         .stroke(Color.yellow, lineWidth: 3)
         .shadow(color: Color.yellow.opacity(0.5), radius: isGlowing ? 8 : 3)
         .scaleEffect(isGlowing ? 1.02 : 1.0)
         .animation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: isGlowing)
       
-      // 텍스트 중앙
       VStack(spacing: 4) {
         Text("완료율")
           .font(.caption)
@@ -180,53 +252,6 @@ struct MoonPhaseRingView: View {
     }
   }
 }
-
-//struct RingChartView: View {
-//  var progress: Double
-//  @State private var isGlowing = false
-//
-//  var body: some View {
-//    ZStack {
-//      Circle()
-//        .stroke(Color.gray.opacity(0.15), lineWidth: 10)
-//
-//      Circle()
-//        .trim(from: 0, to: progress)
-//        .stroke(
-//          AngularGradient(
-//            gradient: Gradient(colors: [
-//              Color.yellow,
-//              Color(hue: 0.12, saturation: 1.0, brightness: 1.0),
-//              Color(hue: 0.13, saturation: 0.8, brightness: 0.95)
-//            ]),
-//            center: .center
-//          ),
-//          style: StrokeStyle(lineWidth: 10, lineCap: .round)
-//        )
-//        .rotationEffect(.degrees(-90))
-//        .shadow(color: Color.yellow.opacity(0.6), radius: 10)
-//        .shadow(color: Color.white.opacity(0.3), radius: 4)
-//        .scaleEffect(isGlowing ? 1.04 : 1.0)
-//        .opacity(isGlowing ? 1.0 : 0.9)
-//        .animation(.easeInOut(duration: 1.2).repeatForever(autoreverses: true), value: isGlowing)
-//        .onAppear {
-//          isGlowing = true
-//        }
-//
-//      VStack(spacing: 4) {
-//        Text("완료율")
-//          .font(.caption)
-//          .foregroundColor(.gray)
-//        Text("\(Int(progress * 100))%")
-//          .font(.title2)
-//          .fontWeight(.semibold)
-//          .foregroundColor(.primary)
-//      }
-//    }
-//    .frame(width: 150, height: 150)
-//    .padding()
-//  }
-//}
 
 #Preview {
   SummaryView(
