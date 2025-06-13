@@ -54,8 +54,8 @@ struct ScheduleBoardView: View {
           Image(systemName: "sparkles")
             .font(.title2)
             .frame(width: 60, height: 60)
-            .background(Color.accentColor)
-            .foregroundColor(.white)
+            .background(Color.white)
+            .foregroundColor(.purple)
             .clipShape(Circle())
             .shadow(radius: 5)
         }
@@ -67,8 +67,8 @@ struct ScheduleBoardView: View {
           Image(systemName: "photo.on.rectangle.angled")
             .font(.title2)
             .frame(width: 60, height: 60)
-            .background(Color.accentColor)
-            .foregroundColor(.white)
+            .background(Color.white)
+            .foregroundColor(.purple)
             .clipShape(Circle())
             .shadow(radius: 5)
         }

@@ -34,6 +34,7 @@ struct HomeView: View {
               Text(section.rawValue).tag(section)
             }
           }
+          .padding(.top, 20)
           .pickerStyle(.segmented)
           .padding(.horizontal)
 
@@ -65,8 +66,8 @@ struct HomeView: View {
           Image(systemName: "book.fill")
             .font(.title2)
             .frame(width: 60, height: 60)
-            .background(Color.accentColor)
-            .foregroundColor(.white)
+            .background(Color.white)
+            .foregroundColor(.purple)
             .clipShape(Circle())
             .shadow(radius: 5)
         }
@@ -78,8 +79,8 @@ struct HomeView: View {
           Image(systemName: "plus")
             .font(.title2)
             .frame(width: 60, height: 60)
-            .background(Color.accentColor)
-            .foregroundColor(.white)
+            .background(Color.white)
+            .foregroundColor(.purple)
             .clipShape(Circle())
             .shadow(radius: 5)
         }

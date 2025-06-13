@@ -13,20 +13,23 @@ struct DailyTimeTableView: View {
 
   private let hourHeight: CGFloat = 60
   private let startHour = 8
-  private let endHour = 20
+  private let endHour = 24
 
   var body: some View {
     VStack(spacing: 0) {
       HStack {
         Button(action: { selectedDate = Calendar.current.date(byAdding: .day, value: -1, to: selectedDate)! }) {
           Image(systemName: "chevron.left")
+            .foregroundStyle(.white)
         }
         Spacer()
         Text(dateFormatter.string(from: selectedDate))
           .font(.headline)
+          .foregroundStyle(.white)
         Spacer()
         Button(action: { selectedDate = Calendar.current.date(byAdding: .day, value: 1, to: selectedDate)! }) {
           Image(systemName: "chevron.right")
+            .foregroundStyle(.white)
         }
       }
       .padding()
@@ -38,6 +41,7 @@ struct DailyTimeTableView: View {
               HStack {
                 Text(String(format: "%02d:00", hour))
                   .font(.caption)
+                  .foregroundStyle(.white)
                   .frame(width: 60, alignment: .trailing)
                 Rectangle()
                   .fill(Color.gray.opacity(0.1))
@@ -56,7 +60,7 @@ struct DailyTimeTableView: View {
             }
             .padding(6)
             .frame(width: UIScreen.main.bounds.width - 80, height: height)
-            .background(Color.yellow.opacity(0.8))
+            .background(Color.yellow.opacity(1.0))
             .cornerRadius(8)
             .offset(y: startY + 10)
             .offset(x: 69)
@@ -64,6 +68,7 @@ struct DailyTimeTableView: View {
         }
         .padding(.leading)
       }
+      .padding(.bottom, 100)
     }
   }
 

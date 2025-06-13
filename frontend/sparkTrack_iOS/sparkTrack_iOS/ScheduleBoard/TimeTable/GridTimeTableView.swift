@@ -63,7 +63,7 @@ struct GridTimeTableView: View {
               }
               .padding(4)
               .frame(width: blockWidth, height: height)
-              .background(Color.yellow.opacity(0.8))
+              .background(Color.yellow.opacity(1.0))
               .cornerRadius(6)
               .position(
                 x: 40 + blockWidth * CGFloat(xIndex) + blockWidth / 2,
@@ -74,6 +74,7 @@ struct GridTimeTableView: View {
         }
       }
     }
+    .padding(.bottom, 100)
   }
 
   var blockWidth: CGFloat {
