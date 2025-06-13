@@ -21,7 +21,7 @@ struct CustomTabView: View {
   var body: some View {
     ZStack {
       Rectangle()
-        .frame(height: 95)
+        .frame(height: 80)
         .foregroundStyle(Color("tabbar"))
         .opacity(0.9)
       
@@ -81,7 +81,7 @@ struct CustomTabView: View {
         .frame(width: 400, height: 55)
         .padding(.vertical, 15)
       }
-      .frame(height: 90)
+      .frame(height: 80)
       .edgesIgnoringSafeArea(.bottom)
     }
   }

@@ -19,11 +19,12 @@ struct ButtonView: View {
           .scaledToFill()
           .frame(width: 30, height: 30)
           .foregroundStyle(isSelected ? Color.yellow : Color.white)
-//          .padding(.bottom, 5)
-        Text(title)
-          .font(.body)
-          .foregroundStyle(isSelected ? Color.yellow : Color.white)
-          .padding(.bottom, 22)
+          .padding(.bottom, 20)
+        
+//        Text(title)
+//          .font(.body)
+//          .foregroundStyle(isSelected ? Color.yellow : Color.white)
+//          .padding(.bottom, 22)
       }
     }
 }
