@@ -5,13 +5,6 @@
 //  Created by 박서현 on 4/27/25.
 //
 
-//
-//  ToDoListView.swift
-//  sparkTrack_iOS
-//
-//  Created by 박서현 on 4/27/25.
-//
-
 import SwiftUI
 
 struct ToDoListView: View {
@@ -98,6 +91,10 @@ struct ToDoRowView: View {
   @State private var showTimer = false
   @State private var showAlert = false
 
+  // 타이머 진행 상태 관리
+  @State private var currentCount: Int = 0
+  @State private var isTimerRunning = false
+
   var body: some View {
     VStack(alignment: .leading, spacing: 8) {
       HStack {
@@ -181,19 +178,12 @@ struct ToDoRowView: View {
       }
 
       if !event.isCompleted {
-        Button("⏱️ 시작") {
+        Button(isTimerRunning ? "⏸️ 다시 시작" : "⏱️ 시작") {
           showTimer = true
         }
         .font(.caption)
         .sheet(isPresented: $showTimer) {
-          CountdownView(
-            counter: 0,
-            countTo: Int(event.durationInSeconds ?? 1800),
-            onComplete: { actual in
-              event.actualDuration = actual
-              showTimer = false
-            }
-          )
+          buildCountdownView()
         }
       }
     }
@@ -210,12 +200,27 @@ struct ToDoRowView: View {
     }
   }
 
+  @ViewBuilder
+  private func buildCountdownView() -> some View {
+    let totalDuration = Int(event.durationInSeconds ?? 1800)
+    CountdownView(
+      countTo: totalDuration,
+      onComplete: { actual in
+        currentCount = actual
+        event.actualDuration = actual  // ✅ Int 타입으로 일치
+        showTimer = false
+        isTimerRunning = true
+      }
+    )
+  }
+
   private func formatTime(_ date: Date) -> String {
     let formatter = DateFormatter()
     formatter.dateFormat = "HH:mm"
     return formatter.string(from: date)
   }
 }
+
 
 extension CalendarEvent {
   var durationInSeconds: Double? {

@@ -28,6 +28,8 @@ struct ClockView: View {
       Text(CounterToMinutes())
         .font(.custom("Avenir Next", size: 60))
         .fontWeight(.black)
+        .foregroundStyle(.yellow)
+//        .opacity(0.8)
     }
   }
 }
