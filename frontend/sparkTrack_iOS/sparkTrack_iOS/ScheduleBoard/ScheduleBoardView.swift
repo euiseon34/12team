@@ -11,14 +11,56 @@ struct ScheduleBoardView: View {
   @State private var selectedMode: ScheduleMode = .weekly
   @State private var selectedDate = Date()
   @State private var showingUploadSheet = false
-  @State private var showingAIScheduleAlert = false // ✅ AI 버튼 동작 임시 Alert 추가 (테스트용)
+  @State private var showingAIScheduleSheet = false
+  @State private var showingLoadingView = false
+  @State private var showingResultView = false
+  @State private var generatedEntries: [TimetableEntry]? = nil
+  @State private var isGeneratingSchedule = false
 
   let sampleEntries: [TimetableEntry] = [
-    TimetableEntry(date: Date(), startTime: "09:00", endTime: "13:00", subject: "근로"),
-    TimetableEntry(date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!, startTime: "10:00", endTime: "11:00", subject: "문화이론"),
-    TimetableEntry(date: Calendar.current.date(byAdding: .day, value: 2, to: Date())!, startTime: "13:00", endTime: "14:30", subject: "캐릭터"),
-    TimetableEntry(date: Calendar.current.date(byAdding: .day, value: 4, to: Date())!, startTime: "15:00", endTime: "16:30", subject: "문학")
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "월", time: "18:00"), startTime: "18:00", endTime: "19:00", subject: "대학생활과", status: "고정"),
+
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "화", time: "10:30"), startTime: "09:30", endTime: "10:30", subject: "채플", status: "고정"),
+    
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "수", time: "09:00"), startTime: "09:00", endTime: "12:00", subject: "공업수학1", status: "고정"),
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "수", time: "12:00"), startTime: "12:00", endTime: "13:30", subject: "통계학개론", status: "고정"),
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "수", time: "14:00"), startTime: "14:00", endTime: "16:00", subject: "서양철학:쟁점과토론", status: "고정"),
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "수", time: "16:30"), startTime: "16:30", endTime: "18:30", subject: "고급C프로그래밍", status: "고정"),
+    
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "목", time: "12:00"), startTime: "12:00", endTime: "15:00", subject: "공학설계기초", status: "고정"),
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "목", time: "15:00"), startTime: "15:00", endTime: "16:30", subject: "English", status: "고정"),
+    
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "금", time: "12:00"), startTime: "12:00", endTime: "13:30", subject: "통계학개론", status: "고정")
   ]
+  
+  let scenarioAEntries: [TimetableEntry] = [
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "월", time: "18:00"), startTime: "18:00", endTime: "19:00", subject: "대학생활과", status: "고정"),
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "월", time: "13:00"), startTime: "13:00", endTime: "13:50", subject: "과제", status: "유동"),
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "월", time: "14:00"), startTime: "14:00", endTime: "14:40", subject: "과제", status: "유동"),
+
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "화", time: "09:30"), startTime: "09:30", endTime: "10:30", subject: "채플", status: "고정"),
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "화", time: "11:00"), startTime: "11:00", endTime: "13:00", subject: "필라테스 클래스", status: "유동"),
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "화", time: "18:00"), startTime: "18:00", endTime: "22:00", subject: "알바", status: "유동"),
+    
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "수", time: "09:00"), startTime: "09:00", endTime: "12:00", subject: "공업수학1", status: "고정"),
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "수", time: "12:00"), startTime: "12:00", endTime: "13:30", subject: "통계학개론", status: "고정"),
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "수", time: "14:00"), startTime: "14:00", endTime: "16:00", subject: "서양철학:쟁점과토론", status: "고정"),
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "수", time: "16:30"), startTime: "16:30", endTime: "18:30", subject: "고급C프로그래밍", status: "고정"),
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "수", time: "20:00"), startTime: "20:00", endTime: "20:40", subject: "고전독서 읽기", status: "유동"),
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "수", time: "20:50"), startTime: "20:50", endTime: "21:30", subject: "고전독서 읽기", status: "유동"),
+    
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "목", time: "12:00"), startTime: "12:00", endTime: "15:00", subject: "공학설계기초", status: "고정"),
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "목", time: "15:00"), startTime: "15:00", endTime: "16:30", subject: "English", status: "고정"),
+    
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "금", time: "12:00"), startTime: "12:00", endTime: "13:30", subject: "통계학개론", status: "고정"),
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "금", time: "14:00"), startTime: "14:00", endTime: "14:50", subject: "기초 통계 과제", status: "유동"),
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "금", time: "15:00"), startTime: "15:00", endTime: "15:50", subject: "기초 통계 과제", status: "유동"),
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "금", time: "16:00"), startTime: "16:00", endTime: "16:10", subject: "기초 통계 과제", status: "유동"),
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "금", time: "18:00"), startTime: "18:00", endTime: "22:00", subject: "알바", status: "유동"),
+    
+    TimetableEntry(date: ScenarioAView.dateFromDayAndTime(day: "토", time: "15:00"), startTime: "15:00", endTime: "22:00", subject: "친구와 약속", status: "유동")
+  ]
+
 
   var body: some View {
     ZStack(alignment: .bottomTrailing) {
@@ -30,26 +72,41 @@ struct ScheduleBoardView: View {
             }
           }
           .pickerStyle(.segmented)
-
           Spacer()
         }
         .padding(.horizontal)
 
         Divider()
 
-        if selectedMode == .weekly {
-          GridTimeTableView(entries: sampleEntries)
+        if isGeneratingSchedule {
+          VStack {
+            Spacer()
+            ProgressView("AI 일정 생성 중...")
+              .progressViewStyle(CircularProgressViewStyle(tint: .purple))
+              .foregroundColor(.white)
+            Spacer()
+          }
         } else {
-          DailyTimeTableView(selectedDate: $selectedDate, entries: sampleEntries)
+          if let entries = generatedEntries {
+            if selectedMode == .weekly {
+              GridTimeTableView(entries: entries)
+            } else {
+              DailyTimeTableView(selectedDate: $selectedDate, entries: entries)
+            }
+          } else {
+            if selectedMode == .weekly {
+              GridTimeTableView(entries: sampleEntries)
+            } else {
+              DailyTimeTableView(selectedDate: $selectedDate, entries: sampleEntries)
+            }
+          }
         }
       }
 
-      // ✅ 우측 하단 버튼들 (AI 버튼 + 업로드 버튼)
+      // 우측 하단 버튼들
       VStack(alignment: .trailing, spacing: 16) {
-        // AI 일정 생성 버튼
         Button(action: {
-          // TODO: AI 일정 생성 기능 연결
-          showingAIScheduleAlert = true
+          showingAIScheduleSheet = true
         }) {
           Image(systemName: "sparkles")
             .font(.title2)
@@ -60,7 +117,6 @@ struct ScheduleBoardView: View {
             .shadow(radius: 5)
         }
 
-        // 사진 업로드 버튼
         Button(action: {
           showingUploadSheet = true
         }) {
@@ -79,12 +135,42 @@ struct ScheduleBoardView: View {
     .sheet(isPresented: $showingUploadSheet) {
       ImageUploaderView()
     }
-    .alert(isPresented: $showingAIScheduleAlert) {
-      Alert(
-        title: Text("AI 일정 생성"),
-        message: Text("AI 일정 생성 기능을 여기에 연결하세요."),
-        dismissButton: .default(Text("확인"))
-      )
+    .sheet(isPresented: $showingAIScheduleSheet) {
+      AIScheduleInputView { startDate, endDate, midterm, final in
+        showingAIScheduleSheet = false
+        showingLoadingView = true
+        isGeneratingSchedule = true
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+          generatedEntries = scenarioAEntries
+          isGeneratingSchedule = false
+          showingLoadingView = false
+          showingResultView = true
+        }
+      }
+    }
+    .fullScreenCover(isPresented: $showingLoadingView) {
+      VStack {
+        ProgressView("AI 일정 생성 중입니다...")
+          .progressViewStyle(CircularProgressViewStyle())
+          .padding()
+        Spacer()
+      }
+    }
+    .fullScreenCover(isPresented: $showingResultView) {
+      VStack(spacing: 24) {
+        Text("✅ AI 일정 생성 완료!")
+          .font(.title2.bold())
+          .padding()
+
+        Button("확인") {
+          showingResultView = false
+        }
+        .padding()
+        .background(Color.purple)
+        .foregroundColor(.white)
+        .clipShape(Capsule())
+      }
     }
     .navigationTitle("시간표 보기")
     .navigationBarTitleDisplayMode(.inline)

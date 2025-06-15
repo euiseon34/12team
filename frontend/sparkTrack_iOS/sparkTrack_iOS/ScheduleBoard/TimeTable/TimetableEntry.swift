@@ -13,4 +13,5 @@ struct TimetableEntry: Identifiable, Codable {
   let startTime: String
   let endTime: String
   let subject: String
+  let status: String
 }

@@ -69,8 +69,8 @@ struct ProcessedTimetableView: View {
 
 #Preview {
   ProcessedTimetableView(entries: [
-    TimetableEntry(date: Date(), startTime: "09:00", endTime: "12:00", subject: "공업수학1"),
-    TimetableEntry(date: Date(), startTime: "13:00", endTime: "14:30", subject: "통계학개론"),
-    TimetableEntry(date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!, startTime: "12:00", endTime: "15:00", subject: "공학설계기")
+    TimetableEntry(date: Date(), startTime: "09:00", endTime: "12:00", subject: "공업수학1", status: "고정"),
+    TimetableEntry(date: Date(), startTime: "13:00", endTime: "14:30", subject: "통계학개론", status: "고정"),
+    TimetableEntry(date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!, startTime: "12:00", endTime: "15:00", subject: "공학설계기", status: "고정")
   ])
 }

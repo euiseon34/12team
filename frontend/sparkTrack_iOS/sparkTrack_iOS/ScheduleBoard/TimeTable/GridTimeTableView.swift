@@ -18,6 +18,7 @@ struct GridTimeTableView: View {
   var body: some View {
     ScrollView {
       VStack(spacing: 0) {
+        // 요일 헤더
         HStack(spacing: 1) {
           Text("").frame(width: 40)
           ForEach(weekdays, id: \.self) { day in
@@ -29,8 +30,9 @@ struct GridTimeTableView: View {
               .background(Color.gray.opacity(0.2))
           }
         }
-        
+
         ZStack(alignment: .topLeading) {
+          // 시간별 빈 그리드
           VStack(spacing: 0) {
             ForEach(startHour..<endHour, id: \.self) { hour in
               HStack(spacing: 1) {
@@ -46,25 +48,37 @@ struct GridTimeTableView: View {
               }
             }
           }
-          
+
+          // 실제 일정 데이터 렌더링
           ForEach(entries) { entry in
             let weekday = weekdayString(from: entry.date)
             if let xIndex = weekdays.firstIndex(of: weekday) {
               let startY = yOffset(for: entry.startTime)
               let height = blockHeight(start: entry.startTime, end: entry.endTime)
-              
+
+              let bgColor: Color = {
+                if entry.status == "유동" {
+                  return .purple
+                } else {
+                  return .yellow
+                }
+              }()
+
               VStack(spacing: 2) {
                 Text(entry.subject)
                   .font(.caption2)
                   .fontWeight(.semibold)
                 Text("\(entry.startTime)~\(entry.endTime)")
-                  .font(.caption2)
-//                  .foregroundColor(.gray)
+                  .font(.system(size: 8))
               }
               .padding(4)
               .frame(width: blockWidth, height: height)
-              .background(Color.yellow.opacity(1.0))
+              .background(bgColor)
               .cornerRadius(6)
+              .overlay(
+                RoundedRectangle(cornerRadius: 6)
+                  .stroke(Color.white.opacity(0.4), lineWidth: 1)
+              )
               .position(
                 x: 40 + blockWidth * CGFloat(xIndex) + blockWidth / 2,
                 y: 1 + startY + height / 2
@@ -104,9 +118,9 @@ struct GridTimeTableView: View {
 
 #Preview {
   GridTimeTableView(entries: [
-    TimetableEntry(date: Date(), startTime: "09:00", endTime: "13:00", subject: "근로"),
-    TimetableEntry(date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!, startTime: "10:00", endTime: "11:00", subject: "문화이론과 대중문화"),
-    TimetableEntry(date: Calendar.current.date(byAdding: .day, value: 2, to: Date())!, startTime: "13:00", endTime: "14:30", subject: "캐릭터 유형론"),
-    TimetableEntry(date: Calendar.current.date(byAdding: .day, value: 4, to: Date())!, startTime: "15:00", endTime: "16:30", subject: "문학의 이해")
+    TimetableEntry(date: Date(), startTime: "09:00", endTime: "13:00", subject: "근로", status: "고정"),
+    TimetableEntry(date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!, startTime: "10:00", endTime: "11:00", subject: "문화이론과 대중문화", status: "고정"),
+    TimetableEntry(date: Calendar.current.date(byAdding: .day, value: 2, to: Date())!, startTime: "13:00", endTime: "14:30", subject: "캐릭터 유형론", status: "고정"),
+    TimetableEntry(date: Calendar.current.date(byAdding: .day, value: 4, to: Date())!, startTime: "15:00", endTime: "16:30", subject: "문학의 이해", status: "고정")
   ])
 }

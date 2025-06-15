@@ -56,12 +56,16 @@ struct DailyTimeTableView: View {
 
             VStack(spacing: 4) {
               Text(entry.subject).font(.caption).bold()
-              Text("\(entry.startTime) ~ \(entry.endTime)").font(.caption2)
+              Text("\(entry.startTime) ~ \(entry.endTime)").font(.system(size: 8))
             }
             .padding(6)
             .frame(width: UIScreen.main.bounds.width - 80, height: height)
-            .background(Color.yellow.opacity(1.0))
+            .background(entry.status == "유동" ? Color.purple.opacity(1.0) : Color.yellow.opacity(1.0))
             .cornerRadius(8)
+            .overlay(
+              RoundedRectangle(cornerRadius: 8)
+                .stroke(Color.white.opacity(0.4), lineWidth: 1)
+            )
             .offset(y: startY + 10)
             .offset(x: 69)
           }
@@ -104,8 +108,8 @@ struct DailyTimeTableView: View {
     DailyTimeTableView(
       selectedDate: selectedDate,
       entries: [
-        TimetableEntry(date: Date(), startTime: "09:00", endTime: "10:30", subject: "자료구조"),
-        TimetableEntry(date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!, startTime: "13:00", endTime: "15:00", subject: "운영체제")
+        TimetableEntry(date: Date(), startTime: "09:00", endTime: "10:30", subject: "자료구조", status: "고정"),
+        TimetableEntry(date: Calendar.current.date(byAdding: .day, value: 1, to: Date())!, startTime: "13:00", endTime: "15:00", subject: "운영체제", status: "고정")
       ]
     )
   }
